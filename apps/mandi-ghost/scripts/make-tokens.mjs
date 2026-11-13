@@ -27,5 +27,5 @@ ${block(lock.dark, lock.chart).replace(/^/gm, '  ')}
   }
 }
 `;
-writeFileSync(new URL('tokens.css', here), css);
+writeFileSync(new URL('public/tokens.css', here), css);
 console.log('tokens.css written');
