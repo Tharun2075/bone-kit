@@ -32,3 +32,8 @@ Top: lantern shows peer count ("2 spirits nearby"). Centre: a card wall of posts
 - Unit: delete merges to peers; seed posts keep the synthetic label.
 - Two-tab e2e (sbx browse): post in tab 1 appears in tab 2 through BroadcastChannel; reload offline shows the posts.
 - axe scan zero serious or critical; Clear all empties IndexedDB; footer shows 14416 and 112.
+
+## Build record (2026-11-13)
+- Signalling check (task 1): all four public servers failed today: `wss://y-webrtc-eu.fly.dev` timeout (10 s), `wss://signaling.yjs.dev` ENOTFOUND, both herokuapp servers HTTP 404. The premise above (three working defaults) was wrong. The app ships with an empty signalling list; sync between tabs on one browser uses BroadcastChannel, and a signalling URL (your own or a self-hosted `bin/server.js`) is set in the Meet sheet. Raw result: `sigcheck-2026-11-13.txt` (outside the repo, in the build scratch).
+- Data model deviation: posts are a `Y.Map` (id to a `[text, category, created, nick]` tuple) plus a one-way `removed` map, instead of a `Y.Array`; this makes concurrent adds and deletes converge without duplicates. Seed ids `syn1`..`syn5` carry the "synthetic" label; imported codes may not use those ids.
+- Limit order: the 100-character text check runs first; the encoded code is also bounded at 160, which binds first for long or non-Latin text (about 90 ASCII or about 30 Telugu characters), so the refusal says how many characters to cut.

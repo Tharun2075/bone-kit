@@ -55,6 +55,9 @@ Everything in this repository was written during the hackathon. It builds on the
 |---|---|---|
 | [Yjs](https://github.com/yjs/yjs) | CRDT document and merge | MIT |
 | [y-indexeddb](https://github.com/yjs/y-indexeddb) | Yjs persistence | MIT |
+| [y-webrtc](https://github.com/yjs/y-webrtc) | peer-to-peer sync (Seance Board) | MIT |
+| [qrcode](https://github.com/soldair/node-qrcode) | draw share QR codes | MIT |
+| [jsQR](https://github.com/cozmo/jsQR) | scan share QR codes | Apache-2.0 |
 | [Dexie](https://github.com/dexie/Dexie.js) | IndexedDB store | Apache-2.0 |
 | [Vite](https://github.com/vitejs/vite) | build and dev server | MIT |
 | [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa) | service worker and manifest | MIT |
