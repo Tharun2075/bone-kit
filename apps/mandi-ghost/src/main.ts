@@ -49,7 +49,9 @@ function render() {
   sh.banner.textContent = banner;
   sh.banner.hidden = banner === '';
   const live = view.meta && !view.meta.synthetic;
-  sh.attribution.textContent = `${view.meta?.attribution ?? ''} ${t('mandi.openMeteo', lang)}`.trim();
+  const credit = t('mandi.openMeteo', lang);
+  const source = view.meta?.attribution ?? '';
+  sh.attribution.textContent = source.includes(credit) ? source : `${source} ${credit}`.trim();
   sh.dropped.textContent = view.meta && view.meta.droppedRows > 0 ? t('mandi.dropped', lang).replace('{n}', String(view.meta.droppedRows)) : '';
   sh.dropped.hidden = !sh.dropped.textContent;
   sh.prices.dataset.source = live ? 'live' : 'synthetic';
