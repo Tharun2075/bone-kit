@@ -19,6 +19,10 @@ function allowed(expr) {
 // Our own workspace packages are Apache-2.0 (see LICENSE) but private ones carry no SPDX in npm terms.
 const own = new Set(['bone-kit', '@bone-kit/skeleton', '@bone-kit/mandi-ghost', '@bone-kit/seance-board', '@bone-kit/signal']);
 
+// Dev-only exception, checked 2026-11-13: wrangler > miniflare > sharp pulls this LGPL native library for the local Images binding.
+// It is a dynamically linked binary on the developer machine, never bundled into the Worker or any app we ship.
+const DEV_ONLY = /^@img\/sharp-libvips-/;
+
 init({ start: root, excludePrivatePackages: false }, (err, pkgs) => {
   if (err) {
     console.error('licence-scan: could not read the dependency tree:', err.message);
@@ -31,7 +35,7 @@ init({ start: root, excludePrivatePackages: false }, (err, pkgs) => {
     if (own.has(name)) continue;
     const lic = Array.isArray(info.licenses) ? info.licenses.join(' AND ') : String(info.licenses ?? 'UNKNOWN');
     counts[lic] = (counts[lic] ?? 0) + 1;
-    if (!allowed(lic)) bad.push(`${id}: ${lic}`);
+    if (!allowed(lic) && !DEV_ONLY.test(name)) bad.push(`${id}: ${lic}`);
   }
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   console.log(`licence-scan: ${total} packages`);
