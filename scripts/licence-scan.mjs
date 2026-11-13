@@ -17,7 +17,7 @@ function allowed(expr) {
   return clean.split(/ OR /).some((alt) => alt.split(/ AND /).every((part) => ALLOWED.has(part.trim())));
 }
 // Our own workspace packages are Apache-2.0 (see LICENSE) but private ones carry no SPDX in npm terms.
-const own = new Set(['bone-kit', '@bone-kit/skeleton', '@bone-kit/mandi-ghost', '@bone-kit/seance-board']);
+const own = new Set(['bone-kit', '@bone-kit/skeleton', '@bone-kit/mandi-ghost', '@bone-kit/seance-board', '@bone-kit/signal']);
 
 init({ start: root, excludePrivatePackages: false }, (err, pkgs) => {
   if (err) {

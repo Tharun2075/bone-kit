@@ -1,0 +1,12 @@
+name = "bone-kit-signal"
+main = "src/worker.ts"
+compatibility_date = "2026-11-01"
+
+# Free plan: Durable Objects must be SQLite-backed. This relay never writes to that storage.
+[[durable_objects.bindings]]
+name = "RELAY"
+class_name = "Relay"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Relay"]

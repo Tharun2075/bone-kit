@@ -8,7 +8,8 @@
   "workspaces": [
     "skeleton",
     "apps/mandi-ghost",
-    "apps/seance-board"
+    "apps/seance-board",
+    "signal"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
