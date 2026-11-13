@@ -1,0 +1,3 @@
+#!/bin/sh
+# Licence gate: exits 1 on any GPL/AGPL/LGPL/unlicensed/unknown dependency. See licence-scan.mjs.
+exec node "$(dirname "$0")/licence-scan.mjs" "$@"
