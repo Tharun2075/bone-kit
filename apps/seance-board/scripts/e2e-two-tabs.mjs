@@ -74,11 +74,11 @@ try {
   await ctx2.close();
 
   // offline reload keeps posts
-  await p2.screenshot({ path: `${tmp}/p2.png` });
   await ctx.setOffline(true);
   await p2.reload({ waitUntil: 'domcontentloaded' });
   await p2.waitForSelector('.sb-card');
   check((await p2.locator('.sb-body', { hasText: POST }).count()) === 1, 'offline reload: post still there');
+  await p2.waitForTimeout(1000);
   await p1.screenshot({ path: `${tmp}/p1.png` });
   await p2.screenshot({ path: `${tmp}/p2.png` });
   await ctx.setOffline(false);

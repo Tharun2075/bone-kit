@@ -230,7 +230,7 @@ $('compose').addEventListener('submit', (e) => {
     msg.textContent = err.kind === 'empty' ? T('empty') : T('over', { n: -err.remaining });
   }
 });
-text.addEventListener('input', updateCount);
+text.addEventListener('input', () => { $('msg').textContent = ''; updateCount(); });
 root.querySelectorAll<HTMLElement>('.sb-pill').forEach((b) => b.addEventListener('click', () => { filter = b.dataset.f as Category | 'all'; paintWall(); }));
 $('lang').addEventListener('change', (e) => { lang = (e.target as HTMLSelectElement).value === 'te' ? 'te' : 'en'; ls.set(LS.lang, lang); setText(); });
 $<HTMLSelectElement>('lang').value = lang;

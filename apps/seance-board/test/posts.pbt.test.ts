@@ -17,7 +17,7 @@ describe('convergence', () => {
       fc.infiniteStream(fc.nat(1000)),
       (posts, order) => {
         const peers = [0, 1, 2, 3].map(() => new Y.Doc());
-        posts.forEach((p, i) => addPost(peers[p.peer], p.text, p.c, 1_700_000_000_000 + i * 1000, seq(i + 1)));
+        posts.forEach((p, i) => addPost(peers[p.peer]!, p.text, p.c, 1_700_000_000_000 + i * 1000, seq(i + 1)));
         const ups = peers.map((d) => Y.encodeStateAsUpdate(d));
         const a = new Y.Doc(), b = new Y.Doc();
         const it1 = order[Symbol.iterator]();
@@ -125,7 +125,7 @@ describe('seeds and listing', () => {
     m.set('good1', ['y'.repeat(500), 'h', 10, 'n'.repeat(99)]);
     const l = listPosts(d);
     expect(l).toHaveLength(1);
-    expect(countChars(l[0].text)).toBe(MAX_TEXT);
-    expect(countChars(l[0].nick ?? '')).toBeLessThanOrEqual(20);
+    expect(countChars(l[0]!.text)).toBe(MAX_TEXT);
+    expect(countChars(l[0]!.nick ?? '')).toBeLessThanOrEqual(20);
   });
 });
