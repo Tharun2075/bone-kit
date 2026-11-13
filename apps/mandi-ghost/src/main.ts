@@ -1,11 +1,12 @@
 import '@bone-kit/skeleton/styles/base.css';
 import './app.css';
-import { createLantern, bindConnectivity, clearAll, initialLantern, t, type Lang } from '@bone-kit/skeleton';
+import { initTheme, createLantern, bindConnectivity, clearAll, initialLantern, t, type Lang } from '@bone-kit/skeleton';
 import { renderShell, setLabels } from './shell.js';
 import { openStore, loadView, refreshSnapshot, savePick, fetchWeather, saveWeather, type View } from './data.js';
 import { bannerText, lastSeenText, trendSvg } from './format.js';
 import { pairKey } from './snapshot.js';
 
+initTheme();
 const DAY = 24 * 3_600_000;
 const REFRESH_MS = 30_000; // R3.1: back online -> screen updated well inside 60 s
 const SNAPSHOT_URL = './snapshot.json';

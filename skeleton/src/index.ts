@@ -5,3 +5,4 @@ export * from './lantern.js';
 export * from './i18n.js';
 export * from './clear.js';
 export * from './pwa.js';
+export * from './theme.js';

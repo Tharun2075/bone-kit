@@ -1,9 +1,9 @@
 {
   "app": "bone-kit",
   "kind": "SELL",
-  "status": "pending-owner-pick",
+  "status": "approved",
   "version": 1,
-  "approved_by": "fable-gate",
+  "approved_by": "owner:T9348",
   "approved_at": "2026-11-13T00:00Z",
   "method_run": "/Users/thar/.workflow/scratch/bone-kit/brand/RATIONALE.md",
   "lane": {

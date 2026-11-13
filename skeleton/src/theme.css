@@ -1,0 +1,37 @@
+/* Maps the --bk-* names the skeleton and apps use onto the generated brand tokens. No colour values here:
+   every colour is a var() of brand-tokens/tokens.css (generated from BRAND.lock; never edit it).
+   Dark ("graveyard-dark") is the default: <html data-theme="dark">; initTheme() switches to light on prefers-color-scheme: light. */
+@import '../../brand-tokens/tokens.css';
+
+:root {
+  color-scheme: light;
+  --bk-bg: var(--bg);
+  --bk-surface: var(--surface);
+  --bk-fg: var(--ink);
+  --bk-muted: var(--muted);
+  --bk-border: var(--line);
+  --bk-accent: var(--accent);
+  --bk-tint: var(--tint);
+  --bk-focus: var(--highlight);
+  --bk-status-ok: var(--success);
+  --bk-status-warn: var(--warn);
+  --bk-status-off: var(--error);
+  --bk-on-accent: var(--surface);
+  --bk-on-status: var(--surface);
+  --bk-chart-1: var(--chart-1);
+  --bk-chart-2: var(--chart-2);
+  --bk-chart-3: var(--chart-3);
+  --bk-chart-4: var(--chart-4);
+  --bk-chart-5: var(--chart-5);
+  --bk-chart-6: var(--chart-6);
+  /* QR stays dark-on-light in both schemes: many phone scanners reject inverted codes. */
+  --bk-qr-fg: var(--ink);
+  --bk-qr-bg: var(--surface);
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bk-on-accent: var(--bg);
+  --bk-on-status: var(--bg);
+  --bk-qr-fg: var(--bg);
+  --bk-qr-bg: var(--ink);
+}

@@ -37,7 +37,7 @@ npm run a11y           # axe scan of both built apps
 npm run dev -w apps/mandi-ghost   # dev server for one app
 ```
 
-Colours come from `tokens.css` (the `--bk-*` custom properties), which each app supplies from its brand lock. The skeleton holds no colour values.
+Colours come from `skeleton/src/theme.css`, which aliases the `--bk-*` custom properties onto the generated `brand-tokens/tokens.css` (from `BRAND.lock`). Dark (graveyard-dark) is the default; light follows `prefers-color-scheme: light` via `initTheme()`. No colour values live outside `brand-tokens/`.
 
 ## Pre-existing code
 

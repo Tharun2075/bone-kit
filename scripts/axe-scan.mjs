@@ -54,13 +54,17 @@ for (const app of apps) {
     continue;
   }
   const server = await serve(dist);
-  const page = await (await browser.newContext()).newPage();
-  await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'domcontentloaded' });
-  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
-  console.log(`axe-scan: ${app}: ${violations.length} violation(s)`);
-  for (const v of violations) console.log(`  ${v.impact}\t${v.id}\t${v.help} (${v.nodes.length} node(s))`);
-  failed += violations.length;
-  await page.close();
+  for (const colorScheme of ['dark', 'light']) {
+    const ctx = await browser.newContext({ colorScheme });
+    const page = await ctx.newPage();
+    await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    console.log(`axe-scan: ${app} (${colorScheme}): ${violations.length} violation(s)`);
+    for (const v of violations) console.log(`  ${v.impact}\t${v.id}\t${v.help} (${v.nodes.length} node(s))`);
+    failed += violations.length;
+    await ctx.close();
+  }
   server.close();
 }
 await browser.close();

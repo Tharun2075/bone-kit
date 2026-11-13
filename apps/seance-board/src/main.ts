@@ -1,11 +1,12 @@
 import '@bone-kit/skeleton/styles/base.css';
 import './app.css';
-import { clearAll, type Lantern } from '@bone-kit/skeleton';
+import { initTheme, clearAll, type Lantern } from '@bone-kit/skeleton';
 import { CATEGORIES, MAX_TEXT, PostTextError, ShareFormatError, addPost, checkText, countChars, importCode, isSynthetic, listPosts, openBoard, removePost, seedIfNew, shareCode, type Category, type Post } from './posts.js';
 import { DEFAULT_ROOM, DEFAULT_SIGNALLING, parseSignalling, startSync, type Sync } from './sync.js';
 import { tr, type Lang, type SKey } from './i18n.js';
 import type { Scanner } from './qr.js';
 
+initTheme();
 // qrcode and jsqr load only when the Share or Meet sheets need them, to keep the first load small.
 const qrMod = () => import('./qr.js');
 

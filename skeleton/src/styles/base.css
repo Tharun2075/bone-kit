@@ -1,7 +1,5 @@
-/* Bone Kit base styles. Colours come ONLY from var(--bk-*) tokens defined in tokens.css (generated from BRAND.lock). */
-:root {
-  color-scheme: light dark;
-}
+/* Bone Kit base styles. Colours come ONLY from var(--bk-*) tokens defined in theme.css (aliases of the generated brand-tokens). */
+@import '../theme.css';
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
