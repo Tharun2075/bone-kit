@@ -1,0 +1,66 @@
+{
+  "app": "bone-kit",
+  "kind": "SELL",
+  "status": "pending-owner-pick",
+  "version": 1,
+  "approved_by": "fable-gate",
+  "approved_at": "2026-11-13T00:00Z",
+  "method_run": "/Users/thar/.workflow/scratch/bone-kit/brand/RATIONALE.md",
+  "lane": {
+    "accent": "#5B1669",
+    "highlight": "#214983"
+  },
+  "light": {
+    "bg": "#F4F1EA",
+    "surface": "#FFFFFF",
+    "ink": "#17151C",
+    "muted": "#5B5666",
+    "line": "#8A8494",
+    "accent": "#5B1669",
+    "tint": "#EEDFF3",
+    "highlight": "#214983",
+    "success": "#1B6B3A",
+    "warn": "#8A5A00",
+    "error": "#B3261E"
+  },
+  "dark": {
+    "bg": "#13111A",
+    "surface": "#1D1A27",
+    "ink": "#EEE9DC",
+    "muted": "#B0A9BE",
+    "line": "#6E6881",
+    "accent": "#D19CF0",
+    "tint": "#2C1E38",
+    "highlight": "#A0B0EC",
+    "success": "#6FD08C",
+    "warn": "#F2B84B",
+    "error": "#FF8A80"
+  },
+  "chart": [
+    "#9B5DE5",
+    "#16907B",
+    "#C9631A",
+    "#2F78CC",
+    "#D6457F",
+    "#7E8A12"
+  ],
+  "type": {
+    "display": "Instrument Serif",
+    "body": "Geist",
+    "mono": "Geist Mono"
+  },
+  "motion": {
+    "strobe": false,
+    "lantern": {
+      "online": "success",
+      "stale": "warn",
+      "offline": "error"
+    },
+    "lantern_pulse_ms": 2400,
+    "lantern_pulse": "slow opacity 0.6-1.0, no flash, off under prefers-reduced-motion",
+    "status_also_by": "word + shape (filled / half / hollow lantern)"
+  },
+  "print": {},
+  "allow_external": [],
+  "tolerance_de00": 1.0
+}
