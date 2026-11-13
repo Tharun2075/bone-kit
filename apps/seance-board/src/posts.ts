@@ -7,6 +7,8 @@ export interface Post {
   category: Category;
   created: number;
   removed: boolean;
+  /** Optional nickname, kept in the doc but never part of the share code (it would not fit in 160). */
+  nick?: string;
 }
 
 export const CATEGORIES = ['h', 'n', 'a', 'c'] as const; // help, news, ask, chat
@@ -53,7 +55,7 @@ export function openBoard(name = 'seance'): Board {
   return { bone, doc: bone.doc };
 }
 
-const posts = (d: Y.Doc) => d.getMap<[string, string, number]>('posts'); // id -> [text, category, created]
+const posts = (d: Y.Doc) => d.getMap<[string, string, number, string?]>('posts'); // id -> [text, category, created, nick]
 const removed = (d: Y.Doc) => d.getMap<true>('removed'); // id -> true; never set back, so a delete wins over any old copy
 const meta = (d: Y.Doc) => d.getMap<boolean>('meta');
 
@@ -78,17 +80,17 @@ export function checkText(raw: string): string {
 function put(d: Y.Doc, p: Post): boolean {
   if (posts(d).has(p.id)) return false;
   d.transact(() => {
-    posts(d).set(p.id, [p.text, p.category, p.created]);
+    posts(d).set(p.id, [p.text, p.category, p.created, p.nick ?? '']);
     if (p.removed) removed(d).set(p.id, true);
   });
   return true;
 }
 
-export function addPost(d: Y.Doc, rawText: string, category: Category, now = Date.now(), rnd: () => number = Math.random): Post {
+export function addPost(d: Y.Doc, rawText: string, category: Category, now = Date.now(), rnd: () => number = Math.random, nick = ''): Post {
   const text = checkText(rawText);
   let id = newId(rnd);
   while (posts(d).has(id) || isSynthetic(id)) id = newId(rnd);
-  const post: Post = { id, text, category, created: Math.floor(now / 1000), removed: false };
+  const post: Post = { id, text, category, created: Math.floor(now / 1000), removed: false, nick: [...nick.trim()].slice(0, 20).join('') || undefined };
   put(d, post);
   return post;
 }
@@ -101,8 +103,8 @@ export function removePost(d: Y.Doc, id: string): void {
 export function listPosts(d: Y.Doc): Post[] {
   const gone = removed(d);
   const out: Post[] = [];
-  posts(d).forEach(([text, category, created], id) => {
-    out.push({ id, text, category: category as Category, created, removed: gone.has(id) });
+  posts(d).forEach(([text, category, created, nick], id) => {
+    out.push({ id, text, category: category as Category, created, removed: gone.has(id), nick: nick || undefined });
   });
   return out.filter((p) => !p.removed).sort((a, b) => b.created - a.created || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
@@ -156,10 +158,11 @@ export function decodeShare(input: string): Post {
     throw e;
   }
   const { id, text, category, created } = r as { id: string; text: string; category: string; created: number };
-  if (!/^[a-z0-9]{1,8}$/.test(id)) throw new ShareFormatError('bad id');
+  // Seed ids are reserved: a pasted code must not carry the "synthetic" label or pin itself to the top.
+  if (!/^[a-z0-9]{1,8}$/.test(id) || isSynthetic(id)) throw new ShareFormatError('bad id');
   if (!text.trim() || countChars(text) > MAX_TEXT) throw new ShareFormatError('bad text');
   if (!(CATEGORIES as readonly string[]).includes(category)) throw new ShareFormatError('bad category');
-  if (!Number.isSafeInteger(created) || created < 0) throw new ShareFormatError('bad time');
+  if (!Number.isSafeInteger(created) || created < 0 || created > Math.floor(Date.now() / 1000) + 300) throw new ShareFormatError('bad time');
   return { id, text, category: category as Category, created, removed: false };
 }
 

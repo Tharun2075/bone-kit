@@ -1,0 +1,93 @@
+import { t as baseT, type Lang, type StringKey } from '@bone-kit/skeleton';
+
+export type { Lang };
+
+const en = {
+  title: 'Seance Board',
+  tagline: 'Pin a note. It reaches every device that meets this one, no account, no server.',
+  compose: 'Write a note',
+  composeLabel: 'Your note (100 characters)',
+  nickname: 'Nickname (optional)',
+  post: 'Pin it',
+  left: '{n} left',
+  over: '{n} too many',
+  empty: 'Write something first',
+  cat_h: 'Help',
+  cat_n: 'News',
+  cat_a: 'Ask',
+  cat_c: 'Chat',
+  all: 'All',
+  synthetic: 'synthetic',
+  by: 'by {name}',
+  share: 'Share',
+  remove: 'Remove',
+  meet: 'Meet',
+  meetTitle: 'Meet another device',
+  room: 'Room name',
+  signalling: 'Signalling server (optional, wss://...)',
+  signallingHelp: 'Empty means tabs on this device only. Add a server to meet devices on other networks.',
+  save: 'Save',
+  peers: '{n} nearby',
+  noPeers: 'no one nearby',
+  shareTitle: 'Share this note',
+  code: 'Code (copy it, send it by SMS)',
+  copy: 'Copy',
+  copied: 'Copied',
+  tooLongShare: 'Too long to share as a code: cut {n} characters.',
+  scan: 'Scan a code',
+  scanning: 'Point the camera at a QR code',
+  noCamera: 'Camera not available. Paste the code instead.',
+  stopScan: 'Stop camera',
+  paste: 'Paste a code',
+  pasteLabel: 'Code from a friend',
+  add: 'Add',
+  added: 'Note added',
+  known: 'You already have that note',
+  badCode: 'That is not a valid note code',
+  close: 'Close',
+  clearTitle: 'Privacy',
+  privacy: 'Notes stay on this device. Other devices keep their own copy. No accounts, no analytics.',
+  helpLines: 'Help lines: 14416 (Tele-MANAS mental health), 112 (emergency)',
+  language: 'Language',
+  qrAlt: 'QR code of this note',
+  empty_wall: 'No notes in this category yet',
+} as const;
+export type SKey = keyof typeof en;
+
+const te: Partial<Record<SKey, string>> = {
+  title: 'సీయాన్స్ బోర్డ్',
+  tagline: 'ఒక నోట్ పెట్టండి. ఇది కలిసే ప్రతి పరికరానికి చేరుతుంది, ఖాతా లేదు, సర్వర్ లేదు.',
+  compose: 'నోట్ రాయండి',
+  composeLabel: 'మీ నోట్ (100 అక్షరాలు)',
+  nickname: 'మారుపేరు (ఐచ్ఛికం)',
+  post: 'పెట్టండి',
+  left: '{n} మిగిలాయి',
+  over: '{n} ఎక్కువ',
+  empty: 'ముందు ఏదైనా రాయండి',
+  cat_h: 'సహాయం',
+  cat_n: 'వార్తలు',
+  cat_a: 'అడగండి',
+  cat_c: 'చాట్',
+  all: 'అన్నీ',
+  synthetic: 'నమూనా (synthetic)',
+  share: 'షేర్',
+  remove: 'తొలగించు',
+  meet: 'కలవండి',
+  copy: 'కాపీ',
+  scan: 'కోడ్ స్కాన్',
+  paste: 'కోడ్ పేస్ట్',
+  add: 'చేర్చు',
+  close: 'మూసివేయి',
+  privacy: 'నోట్లు ఈ పరికరంలోనే ఉంటాయి. ఇతర పరికరాలు తమ కాపీని ఉంచుకుంటాయి. ఖాతాలు లేవు, అనలిటిక్స్ లేదు.',
+  helpLines: 'సహాయ నంబర్లు: 14416 (టెలి-మానస్), 112 (అత్యవసరం)',
+  noPeers: 'సమీపంలో ఎవరూ లేరు',
+  peers: '{n} సమీపంలో',
+};
+
+/** Seance strings first, then the skeleton's `app.*` strings (lantern, Clear all). */
+export function tr(key: SKey | StringKey, lang: Lang, vars: Record<string, string | number> = {}): string {
+  const own = key in en ? (lang === 'te' ? te[key as SKey] : undefined) ?? en[key as SKey] : undefined;
+  let s = own ?? baseT(key as StringKey, lang);
+  for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v));
+  return s;
+}
