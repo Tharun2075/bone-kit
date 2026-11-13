@@ -14,7 +14,7 @@ The default public y-webrtc signalling servers were all dead: `y-webrtc-eu.fly.d
 
 ## Searched and picked
 
-Searched npm and GitHub for QR generate/scan libraries and for WebRTC signalling. Picked `qrcode` (MIT, mature, SVG output) and `jsqr` (Apache-2.0, pure JS) over camera-SDK or WASM options; `y-webrtc` (MIT) because it plugs straight into the existing Yjs doc. Licences were checked by `npm run licence-scan`.
+Searched npm for QR generate/scan libraries and for Yjs p2p providers (y-webrtc; the public signalling servers listed by the Yjs project were probed, see above). Picked `qrcode` (MIT, mature, SVG output) and `jsqr` (Apache-2.0, pure JS) over camera-SDK or WASM options; `y-webrtc` (MIT) because it plugs straight into the existing Yjs doc. Licences were checked by `npm run licence-scan`.
 
 ## Run and test
 
@@ -26,4 +26,6 @@ Searched npm and GitHub for QR generate/scan libraries and for WebRTC signalling
 - Deletes are one-way tombstones: a removed post stays removed, and a hostile peer can remove or add posts; there is no authorship check. Peer data is validated and clamped before display.
 - The "synthetic" label is derived from the post id, so a peer could spoof it; it is a label, not a security boundary.
 - The 160-character code bound binds before the 100-character text limit for long or non-Latin text (about 90 ASCII or 30 Telugu characters); the refusal says how many to cut.
-- Camera scanning is proven only by unit tests of the code path, not on a real camera.
+- Camera scanning (jsQR) is untested: no automated test and no real camera run. The paste path is covered by the e2e.
+
+- The e2e and axe scans ran on the host with Playwright's bundled Chromium, not in sbx or own-browser.

@@ -73,14 +73,18 @@ try {
   check((await p3.locator('#pastemsg').innerText()).length > 0, 'bad code gives a message');
   await ctx2.close();
 
+  // proof shot while both tabs are online
+  await p1.evaluate(() => window.scrollTo(0, 0));
+  await p1.waitForTimeout(500);
+  await p1.screenshot({ path: `${tmp}/p1.png` });
+  await p2.screenshot({ path: `${tmp}/p2.png` });
+
   // offline reload keeps posts
   await ctx.setOffline(true);
   await p2.reload({ waitUntil: 'domcontentloaded' });
   await p2.waitForSelector('.sb-card');
   check((await p2.locator('.sb-body', { hasText: POST }).count()) === 1, 'offline reload: post still there');
-  await p2.waitForTimeout(1000);
-  await p1.screenshot({ path: `${tmp}/p1.png` });
-  await p2.screenshot({ path: `${tmp}/p2.png` });
+  check(/offline/i.test(await p2.locator('#lantern').innerText()), 'lantern says offline when the network is off');
   await ctx.setOffline(false);
 
   // Telugu
@@ -93,7 +97,7 @@ try {
   const fs = await import('node:fs');
   const b64 = (f) => fs.readFileSync(f).toString('base64');
   const sheet = await browser.newPage({ viewport: { width: 1060, height: 1040 } });
-  await sheet.setContent(`<body style="margin:0;display:flex;gap:20px;font:14px system-ui"><div><p>Tab 1 (online)</p><img width=520 src="data:image/png;base64,${b64(`${tmp}/p1.png`)}"></div><div><p>Tab 2 (offline, after reload)</p><img width=520 src="data:image/png;base64,${b64(`${tmp}/p2.png`)}"></div></body>`);
+  await sheet.setContent(`<body style="margin:0;display:flex;gap:20px;font:14px system-ui"><div><p>Tab 1 (online)</p><img width=520 src="data:image/png;base64,${b64(`${tmp}/p1.png`)}"></div><div><p>Tab 2 (online, same post synced)</p><img width=520 src="data:image/png;base64,${b64(`${tmp}/p2.png`)}"></div></body>`);
   mkdirSync(dirname(out), { recursive: true });
   await sheet.screenshot({ path: out });
   await sheet.close();

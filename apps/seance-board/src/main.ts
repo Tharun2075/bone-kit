@@ -113,7 +113,7 @@ function updateCount() {
 
 function paintLantern() {
   const el = $('lantern');
-  const st = sync?.lantern.get().status ?? 'offline';
+  const st = !navigator.onLine ? 'offline' : (sync?.lantern.get().status ?? 'offline');
   el.dataset.status = st;
   // Text and a symbol, never colour alone.
   const mark = st === 'online' ? '● ' : st === 'stale' ? '◐ ' : '○ ';
@@ -185,6 +185,9 @@ async function openShare(p: Post) {
   $<HTMLButtonElement>('b-copy').disabled = !r.ok;
   ($('share') as HTMLDialogElement).showModal();
 }
+
+window.addEventListener('online', () => paintLantern());
+window.addEventListener('offline', () => paintLantern());
 
 function restartSync() {
   sync?.destroy();
