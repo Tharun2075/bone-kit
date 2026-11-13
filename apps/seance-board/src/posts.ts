@@ -103,8 +103,13 @@ export function removePost(d: Y.Doc, id: string): void {
 export function listPosts(d: Y.Doc): Post[] {
   const gone = removed(d);
   const out: Post[] = [];
-  posts(d).forEach(([text, category, created, nick], id) => {
-    out.push({ id, text, category: category as Category, created, removed: gone.has(id), nick: nick || undefined });
+  posts(d).forEach((v, id) => {
+    // Peers can write anything into the doc: skip malformed entries and clamp what is shown.
+    if (!Array.isArray(v) || typeof v[0] !== 'string' || typeof v[2] !== 'number' || !Number.isFinite(v[2])) return;
+    if (!(CATEGORIES as readonly string[]).includes(v[1])) return;
+    const text = [...v[0]].slice(0, MAX_TEXT).join('');
+    const nick = typeof v[3] === 'string' ? [...v[3]].slice(0, 20).join('') : '';
+    out.push({ id, text, category: v[1] as Category, created: v[2], removed: gone.has(id), nick: nick || undefined });
   });
   return out.filter((p) => !p.removed).sort((a, b) => b.created - a.created || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
