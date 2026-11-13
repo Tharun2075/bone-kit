@@ -1,0 +1,29 @@
+name: mandi-ghost snapshot
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Without the DATA_GOV_IN_KEY secret the script exits 0 and the synthetic snapshot stays.
+      - name: Fetch live snapshot
+        env:
+          DATA_GOV_IN_KEY: ${{ secrets.DATA_GOV_IN_KEY }}
+        run: node apps/mandi-ghost/scripts/fetch-snapshot.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "snapshot-bot"
+          git config user.email "snapshot-bot@users.noreply.github.com"
+          git add apps/mandi-ghost/public/snapshot.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Mandi Ghost snapshot"
+            git push
+          fi
