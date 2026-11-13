@@ -54,7 +54,7 @@ for (const app of apps) {
     continue;
   }
   const server = await serve(dist);
-  const page = await browser.newPage();
+  const page = await (await browser.newContext()).newPage();
   await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'domcontentloaded' });
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   console.log(`axe-scan: ${app}: ${violations.length} violation(s)`);

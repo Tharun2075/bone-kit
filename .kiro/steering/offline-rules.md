@@ -11,3 +11,4 @@ inclusion: always
 6. The service worker precaches the app shell; data is never cached in the service worker, only in IndexedDB.
 7. "Clear all" (`clearAll()`) deletes every Bone Kit database and is reachable from every app's settings in two taps or fewer.
 8. Test offline paths: DevTools Network = Offline, reload, the app must still render.
+7. Exception to rule 6 (Mandi Ghost only): `snapshot.json` is cached by the service worker with NetworkFirst, so an offline reload can fetch it. Documented in apps/mandi-ghost/README.md.
