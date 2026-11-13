@@ -12,6 +12,20 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@bone-kit/skeleton": "0.1.0"
+    "@bone-kit/skeleton": "0.1.0",
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
+    "y-indexeddb": "^9.0.12",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.33"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6",
+    "fake-indexeddb": "^6.2.8",
+    "fast-check": "^4.10.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
   }
 }
