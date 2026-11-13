@@ -4,8 +4,8 @@ EARS form. Flow: many writers, merge-on-meet, no app server. Skeleton rules in `
 
 ## R1 Posts
 - R1.1 WHEN a user submits a post, THE SYSTEM SHALL add it to the shared Yjs array in the local doc first.
-- R1.2 THE SYSTEM SHALL give each post an id, a short text (at most 100 characters), a category and a created time.
-- R1.3 IF a post cannot be encoded in 160 characters, THEN THE SYSTEM SHALL refuse it and show the remaining character count.
+- R1.2 THE SYSTEM SHALL give each post an id, a short text, a category and a created time, with post text of at most 100 characters and the encoded share code of at most 160 characters.
+- R1.3 IF the post text is over 100 characters or the encoded share code is over 160 characters, THEN THE SYSTEM SHALL refuse it and show the remaining count, naming the limit that applies first (the 100-character text limit is checked before the 160-character code limit).
 - R1.4 WHEN the user deletes their own post, THE SYSTEM SHALL mark it as removed in the doc so the removal merges to every peer.
 
 ## R2 Sync on meet

@@ -4,6 +4,7 @@
 - [ ] 2. Write `scripts/make-synthetic.mjs` and commit a labelled synthetic `public/snapshot.json` (R1.3, R3.4).
 - [ ] 3. Write `scripts/fetch-snapshot.mjs`: data.gov.in + Open-Meteo, row cleaner, `droppedRows`, attribution fields (R1.1, R1.4, R1.5).
 - [ ] 4. Write `.github/workflows/snapshot.yml`: daily cron, secret `DATA_GOV_IN_KEY`, commit snapshot, fallback on failure (R1.1-R1.3).
+- [ ] 4b. README and demo video state "synthetic sample data" unless task 1 verified live data; add a test that the UI shows live vs synthetic correctly (R3.4).
 - [ ] 5. Add the Dexie layer on `createStore`: save rows with `lastSeen`, keep 7 points per pair (R2).
 - [ ] 6. Add the refresh loop: fetch on load and on the `online` event, 60 s budget, keep cache on failure (R3.1, R3.3).
 - [ ] 7. Wire `lantern.ts` and the "last seen Xh ago" text in en and te (R3.2, R4.3).
