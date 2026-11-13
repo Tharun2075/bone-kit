@@ -1,0 +1,22 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Bone Kit: axe accessibility scan on app change",
+      "description": "Rebuilds the apps and runs axe-core (WCAG 2.x A/AA) on each built app whenever a file under apps/ is saved, created or deleted.",
+      "trigger": "PostFileSave",
+      "matcher": "apps/[^/]+/(src/.*|index\\.html|vite\\.config\\.ts)$",
+      "action": { "type": "command", "command": "npm run build && npm run a11y" },
+      "timeout": 300,
+      "enabled": true
+    },
+    {
+      "name": "Bone Kit: axe scan on new app file",
+      "trigger": "PostFileCreate",
+      "matcher": "apps/[^/]+/(src/.*|index\\.html)$",
+      "action": { "type": "command", "command": "npm run build && npm run a11y" },
+      "timeout": 300,
+      "enabled": true
+    }
+  ]
+}

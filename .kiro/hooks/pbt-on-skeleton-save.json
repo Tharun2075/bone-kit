@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Bone Kit: property tests on skeleton save",
+      "description": "Runs the fast-check property suites (merge, payload, lantern; 1000 cases each) whenever a file under skeleton/src/ is saved.",
+      "trigger": "PostFileSave",
+      "matcher": "skeleton/src/.*\\.ts$",
+      "action": { "type": "command", "command": "npm run test:pbt" },
+      "timeout": 180,
+      "enabled": true
+    }
+  ]
+}

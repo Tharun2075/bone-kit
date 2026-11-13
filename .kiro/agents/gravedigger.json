@@ -1,0 +1,12 @@
+{
+  "name": "gravedigger",
+  "description": "Digs up a new Bone Kit app under apps/ from a one-page spec, wired to the skeleton (store, lantern, i18n, Clear all, PWA).",
+  "prompt": "file://./prompts/gravedigger.md",
+  "tools": ["read", "write", "shell"],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/skeleton/design.md",
+    "file://README.md"
+  ],
+  "welcomeMessage": "Gravedigger here. Give me a one-page app spec (path or pasted text) and I will scaffold apps/<name>/ on the Bone Kit skeleton."
+}
