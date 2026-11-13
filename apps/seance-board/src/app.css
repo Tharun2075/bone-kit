@@ -46,4 +46,4 @@ dialog form { display: grid; gap: 0.5rem; }
 .sb-video { width: 100%; max-height: 16rem; }
 .sb-sharepost { overflow-wrap: anywhere; font-weight: 700; }
 @media (prefers-reduced-motion: no-preference) { .sb-card { animation: sb-in 0.25s ease-out; } }
-@keyframes sb-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sb-in { from { transform: translateY(0.5rem); } to { transform: none; } }
