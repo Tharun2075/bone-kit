@@ -1,0 +1,23 @@
+{
+  "name": "bone-kit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Kiro-native skeleton for local-first, low-bandwidth web apps that stay alive with no signal.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "workspaces": [
+    "skeleton",
+    "apps/mandi-ghost",
+    "apps/seance-board"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm test --workspaces",
+    "test:pbt": "npm run test:pbt -w @bone-kit/skeleton",
+    "licence-scan": "node scripts/licence-scan.mjs",
+    "a11y": "node scripts/axe-scan.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

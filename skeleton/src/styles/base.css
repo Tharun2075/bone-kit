@@ -1,0 +1,31 @@
+/* Bone Kit base styles. Colours come ONLY from var(--bk-*) tokens defined in tokens.css (generated from BRAND.lock). */
+:root {
+  color-scheme: light dark;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bk-bg);
+  color: var(--bk-fg);
+}
+.bk-lantern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--bk-border);
+}
+.bk-lantern[data-status='online'] { background: var(--bk-status-ok); color: var(--bk-on-status); }
+.bk-lantern[data-status='stale'] { background: var(--bk-status-warn); color: var(--bk-on-status); }
+.bk-lantern[data-status='offline'] { background: var(--bk-status-off); color: var(--bk-on-status); }
+.bk-button {
+  font: inherit;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--bk-accent);
+  color: var(--bk-on-accent);
+  border: 1px solid var(--bk-border);
+  border-radius: 0.5rem;
+}
+.bk-button:focus-visible { outline: 3px solid var(--bk-focus); outline-offset: 2px; }
