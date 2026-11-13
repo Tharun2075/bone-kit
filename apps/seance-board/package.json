@@ -1,0 +1,17 @@
+{
+  "name": "@bone-kit/seance-board",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A shared offline board that merges when devices meet again.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bone-kit/skeleton": "0.1.0"
+  }
+}

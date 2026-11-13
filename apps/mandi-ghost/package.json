@@ -1,0 +1,17 @@
+{
+  "name": "@bone-kit/mandi-ghost",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Last-known crop prices that still work offline and travel by SMS.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bone-kit/skeleton": "0.1.0"
+  }
+}
