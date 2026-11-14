@@ -4,7 +4,7 @@ export type { Lang };
 
 const en = {
   title: 'Seance Board',
-  tagline: 'Pin a note. It reaches every device that meets this one, no account, no server.',
+  tagline: 'Pin a note. It reaches every device that meets this one, no account. Posts pass through a relay that stores nothing.',
   compose: 'Write a note',
   composeLabel: 'Your note (100 characters)',
   nickname: 'Nickname (optional)',
@@ -46,7 +46,7 @@ const en = {
   badCode: 'That is not a valid note code',
   close: 'Close',
   clearTitle: 'Privacy',
-  privacy: 'Notes stay on this device. Other devices keep their own copy. No accounts, no analytics.',
+  privacy: 'Notes are kept on your devices. To reach other devices they pass through our relay, which stores nothing and forgets them at once. No accounts, no analytics.',
   helpLines: 'Help lines: 14416 (Tele-MANAS mental health), 112 (emergency)',
   language: 'Language',
   qrAlt: 'QR code of this note',
@@ -58,7 +58,7 @@ export type SKey = keyof typeof en;
 
 const te: Partial<Record<SKey, string>> = {
   title: 'సీయాన్స్ బోర్డ్',
-  tagline: 'ఒక నోట్ పెట్టండి. ఇది కలిసే ప్రతి పరికరానికి చేరుతుంది, ఖాతా లేదు, సర్వర్ లేదు.',
+  tagline: 'ఒక నోట్ పెట్టండి. ఇది కలిసే ప్రతి పరికరానికి చేరుతుంది, ఖాతా లేదు. నోట్లు ఏమీ నిల్వ చేయని రిలే ద్వారా వెళ్తాయి.',
   compose: 'నోట్ రాయండి',
   composeLabel: 'మీ నోట్ (100 అక్షరాలు)',
   nickname: 'మారుపేరు (ఐచ్ఛికం)',
@@ -80,7 +80,7 @@ const te: Partial<Record<SKey, string>> = {
   paste: 'కోడ్ పేస్ట్',
   add: 'చేర్చు',
   close: 'మూసివేయి',
-  privacy: 'నోట్లు ఈ పరికరంలోనే ఉంటాయి. ఇతర పరికరాలు తమ కాపీని ఉంచుకుంటాయి. ఖాతాలు లేవు, అనలిటిక్స్ లేదు.',
+  privacy: 'నోట్లు మీ పరికరాల్లోనే ఉంటాయి. ఇతర పరికరాలకు చేరడానికి అవి మా రిలే గుండా వెళ్తాయి; అది ఏమీ నిల్వ చేయదు, వెంటనే మరచిపోతుంది. ఖాతాలు లేవు, అనలిటిక్స్ లేదు.',
   helpLines: 'సహాయ నంబర్లు: 14416 (టెలి-మానస్), 112 (అత్యవసరం)',
   noPeers: 'సమీపంలో ఎవరూ లేరు',
   peers: '{n} సమీపంలో',

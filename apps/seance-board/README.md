@@ -10,7 +10,7 @@ A small notice wall that works with no signal and no account. Pin a note of up t
 
 ## Signalling status (checked 2026-11-13)
 
-The default public y-webrtc signalling servers were all dead: `y-webrtc-eu.fly.dev` timed out, `signaling.yjs.dev` does not resolve, both herokuapp servers answer 404. So the app ships with **no default signalling server**. Two tabs sync through BroadcastChannel; for devices on different networks, put a signalling URL in the Meet sheet (you can self-host y-webrtc's `bin/server.js` for free). We run no signalling server ourselves.
+The default public y-webrtc signalling servers were all dead: `y-webrtc-eu.fly.dev` timed out, `signaling.yjs.dev` does not resolve, both herokuapp servers answer 404. So the app ships with **no default signalling server**. Two tabs sync through BroadcastChannel; for devices on different networks, put a signalling URL in the Meet sheet (you can self-host y-webrtc's `bin/server.js` for free). The live build uses our own relay (`bone-kit-signal`, `signal/`): it carries WebRTC offers and the notes themselves, stores nothing, and the room name is hashed before it reaches the relay.
 
 ## Searched and picked
 

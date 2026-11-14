@@ -45,7 +45,7 @@ Everything in this repository was written during the hackathon. It builds on the
 
 ## Privacy
 
-- Bone Kit collects no personal data and has no server, analytics or tracking.
+- Bone Kit collects no personal data and has no analytics or tracking. Seance Board posts pass through our relay (`signal/`), which stores nothing.
 - All data stays on the device in IndexedDB.
 - "Clear all" in every app deletes every local database at once.
 
