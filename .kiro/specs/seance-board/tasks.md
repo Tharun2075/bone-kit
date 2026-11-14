@@ -15,3 +15,4 @@
 - [x] 12. Run the two-tab e2e and `npm run a11y`; fix findings.
 - [x] 13. Update README attributions (Yjs, y-webrtc, y-indexeddb, `qrcode` MIT and `jsqr` Apache-2.0 licences checked).
 - [x] 14. Fix stale peer count when offline: `paintLantern` must show "no one nearby" whenever the status is `offline` (R2.6). Add unit test `test/lantern-offline.test.ts`.
+- [x] 15. Private-room-by-default: remove the dead `DEFAULT_ROOM = 'seance-board'` export from `sync.ts` (it was never used but could accidentally be passed to `startSync`, landing all users in the same room); extend `test/room.test.ts` to assert that generated ids are at least 16 chars, that two fresh visits always differ, that a valid hash id is kept without a replace call, and that invalid ids (empty, too-short, disallowed chars) are replaced with a fresh id (R2.7).

@@ -15,6 +15,7 @@ EARS form. Flow: many writers, merge-on-meet, no app server. Skeleton rules in `
 - R2.4 WHILE no peer is connected, THE SYSTEM SHALL work fully on the local doc and show the lantern as offline.
 - R2.5 THE SYSTEM SHALL converge: any order and any duplication of updates yields the same post list on every replica.
 - R2.6 WHEN `navigator.onLine` is false, THE SYSTEM SHALL show the lantern as offline and show "no one nearby", even if peer connections have not yet timed out.
+- R2.7 WHEN no room id is present in the URL hash, THE SYSTEM SHALL generate a cryptographically random private room id of at least 16 URL-safe characters and write it into the hash with `history.replaceState` before joining any room, so that two independent visits never land in the same room by default; a valid id already in the hash SHALL be kept as-is and SHALL NOT trigger a replace; an id that fails validation (empty, too short, or contains disallowed characters) SHALL be treated as absent and replaced with a fresh generated id.
 
 ## R3 Storage and sharing
 - R3.1 THE SYSTEM SHALL persist the doc with y-indexeddb and reload it offline.
