@@ -10,7 +10,7 @@ EARS form. Flow: many writers, merge-on-meet, no app server. Skeleton rules in `
 
 ## R2 Sync on meet
 - R2.1 WHEN two devices join the same room, THE SYSTEM SHALL exchange Yjs updates over y-webrtc until both hold the same posts.
-- R2.2 THE SYSTEM SHALL use the y-webrtc default public signalling servers, which only introduce peers and carry no posts after the connection opens, unless the user sets another URL.
+- R2.2 THE SYSTEM SHALL ship with an empty signalling list (the four y-webrtc public default servers were all unreachable on 2026-11-13); when `VITE_SIGNAL_URL` is set at build time or the user enters a URL in the Meet sheet, THE SYSTEM SHALL connect to that WebSocket URL as the signalling relay. The relay is a Cloudflare Durable Object (`signal/`) that speaks the y-webrtc protocol: it forwards each `publish` frame only to the other sockets subscribed to the same room topic, stores nothing on disk, and never sees post content (posts travel peer-to-peer over WebRTC data channels after the relay has introduced the peers). Additionally, because carrier NAT can block direct WebRTC paths, the relay also carries Yjs update frames directly between peers in the room; Yjs updates are idempotent, so receiving the same update over both paths is harmless. The user-settable URL in the Meet sheet changes only the signalling endpoint for the current session.
 - R2.3 WHERE no signalling server is reachable, THE SYSTEM SHALL sync tabs of the same browser through BroadcastChannel.
 - R2.4 WHILE no peer is connected, THE SYSTEM SHALL work fully on the local doc and show the lantern as offline.
 - R2.5 THE SYSTEM SHALL converge: any order and any duplication of updates yields the same post list on every replica.

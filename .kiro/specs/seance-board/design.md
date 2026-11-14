@@ -1,16 +1,17 @@
 # Design: Seance Board
 
 ## Sync transport
-- y-webrtc (MIT) default signalling list (npm package README, <https://www.npmjs.com/package/y-webrtc>): `wss://signaling.yjs.dev`, `wss://y-webrtc-signaling-eu.herokuapp.com`, `wss://y-webrtc-signaling-us.herokuapp.com`. Signalling only introduces peers; post data goes over the WebRTC data channel. The community reports these public servers can be down (<https://discuss.yjs.dev/t/is-the-public-signaling-server-that-ships-by-default-with-y-webrtc-still-working/1979>), so the builder checks them live; the room name is random and shared by QR or text.
-- Fallback "two tabs on one laptop": y-webrtc's BroadcastChannel (same browser, no network). Demo path if signalling is down.
-- Optional: user-set signalling URL, or self-hosted `bin/server.js` from y-webrtc (no cost).
+- The four y-webrtc public default servers were all unreachable on 2026-11-13 (see Build record). `DEFAULT_SIGNALLING` in `sync.ts` is therefore an empty array; no third-party signalling server is contacted unless a URL is configured.
+- Own relay (`signal/`): a Cloudflare Durable Object that speaks the y-webrtc protocol (`subscribe` / `unsubscribe` / `publish` / `ping`). It fans each `publish` to the other sockets subscribed to the same room topic. It stores nothing on disk — topic membership lives in memory only and is lost on eviction. It never sees post content (posts travel over WebRTC data channels after peers are introduced). It refuses messages over 64 KB and caps each socket at 32 subscribed topics. The relay topic for a room is the first 40 hex characters of the SHA-256 of `bone-kit/seance/<roomId>`, so room ids sharing a prefix never share a relay topic. Configured via `VITE_SIGNAL_URL` at build time or the user-settable URL in the Meet sheet.
+- Because carrier NAT (observed on Jio, 2026-11-14) can prevent direct WebRTC data channels from opening even after peers are introduced, the relay also carries Yjs update frames directly. `relay.ts` publishes every local `doc.on('update')` and applies incoming updates with `Y.applyUpdate`; Yjs idempotency means receiving the same update over both paths is harmless.
+- Fallback "two tabs on one browser": y-webrtc's BroadcastChannel (no network required, same browser only). Active whenever `WebrtcProvider` is running, independent of signalling.
 
 ## Data flow
 ```mermaid
 flowchart LR
   A[Phone A: Yjs doc + y-indexeddb] <-->|WebRTC data channel| B[Phone B: Yjs doc + y-indexeddb]
-  A -. introduce only .-> SIG[Public signalling server]
-  B -. introduce only .-> SIG
+  A <-->|introduce + Yjs updates| REL[Own relay\nCloudflare DO]
+  B <-->|introduce + Yjs updates| REL
   A <-->|BroadcastChannel| T[Second tab, same browser]
   A -->|encode <=160 chars| TXT[Text / QR]
   TXT -->|decode + merge| B
@@ -22,7 +23,7 @@ Every device writes and every device is a replica. No device is the source of tr
 - DOES NOT USE: `store.ts` Dexie records (y-indexeddb holds the data), any `lastSeen` price caching, any snapshot fetch or scheduled job.
 
 ## UI layout (distinct: a compose-and-wall board)
-Top: lantern shows peer count ("2 spirits nearby"). Centre: a card wall of posts, newest first, each with a "synthetic" tag on seed posts. Bottom: a compose bar with a 100-character counter and category chips; the help-line footer sits under it. Side sheet: "Meet" (room name, QR, signalling URL) and "Share as text / Paste code". No price, trend or weather views.
+Top: lantern shows peer count ("2 spirits nearby"). Centre: a card wall of posts, newest first, each with a "synthetic" tag on seed posts. Bottom: a compose bar with a 100-character counter and category chips; the help-line footer sits under it. Side sheet: "Meet" (room id, invite QR, relay URL field — sets the signalling and direct-sync endpoint for the current session; empty means BroadcastChannel only) and "Share as text / Paste code". No price, trend or weather views.
 
 ## Tests (Vitest, fast-check 1000 runs)
 - PBT: convergence, N replicas receive the same updates in any order and duplicated, all equal (1000 runs).
