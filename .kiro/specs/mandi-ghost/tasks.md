@@ -13,3 +13,4 @@
 - [ ] 10. Write the PBT and unit tests from design.md; `npm test` exits 0.
 - [ ] 11. Run the offline e2e and `npm run a11y`; fix findings.
 - [ ] 12. Update README attributions (data.gov.in, Open-Meteo CC-BY 4.0).
+- [ ] 13. Write `apps/mandi-ghost/test/lastseen.pbt.test.ts`: property-based suite (1000 runs) covering R2.1–R2.3 and last-seen age formatting — `trendsByPair` produces ≤7 points per pair sorted oldest→newest; R1.5 drop rules for each malformation class (non-numeric price, missing market, missing commodity); `lastSeenText` formatted-age string is monotonic in age and contains the numeric hour count; `lastSeen` epoch from `saveSnapshot` is never greater than the `now` passed in.
