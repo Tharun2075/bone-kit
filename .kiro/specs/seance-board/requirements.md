@@ -14,6 +14,7 @@ EARS form. Flow: many writers, merge-on-meet, no app server. Skeleton rules in `
 - R2.3 WHERE no signalling server is reachable, THE SYSTEM SHALL sync tabs of the same browser through BroadcastChannel.
 - R2.4 WHILE no peer is connected, THE SYSTEM SHALL work fully on the local doc and show the lantern as offline.
 - R2.5 THE SYSTEM SHALL converge: any order and any duplication of updates yields the same post list on every replica.
+- R2.6 WHEN `navigator.onLine` is false, THE SYSTEM SHALL show the lantern as offline and show "no one nearby", even if peer connections have not yet timed out.
 
 ## R3 Storage and sharing
 - R3.1 THE SYSTEM SHALL persist the doc with y-indexeddb and reload it offline.

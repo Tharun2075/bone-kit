@@ -124,7 +124,9 @@ function paintLantern() {
   el.dataset.status = st;
   // Text and a symbol, never colour alone.
   const mark = st === 'online' ? '● ' : st === 'stale' ? '◐ ' : '○ ';
-  el.textContent = `${mark}${T(`app.${st}` as 'app.online')} · ${peers > 0 ? T('peers', { n: peers }) : T('noPeers')}`;
+  // When offline the peer count is stale: connections haven't timed out yet but no data can flow.
+  const peerText = st !== 'offline' && peers > 0 ? T('peers', { n: peers }) : T('noPeers');
+  el.textContent = `${mark}${T(`app.${st}` as 'app.online')} · ${peerText}`;
 }
 
 function paintWall() {

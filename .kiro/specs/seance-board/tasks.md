@@ -14,3 +14,4 @@
 - [x] 11. Write the PBT and unit tests from design.md; `npm test` exits 0.
 - [x] 12. Run the two-tab e2e and `npm run a11y`; fix findings.
 - [x] 13. Update README attributions (Yjs, y-webrtc, y-indexeddb, `qrcode` MIT and `jsqr` Apache-2.0 licences checked).
+- [x] 14. Fix stale peer count when offline: `paintLantern` must show "no one nearby" whenever the status is `offline` (R2.6). Add unit test `test/lantern-offline.test.ts`.
