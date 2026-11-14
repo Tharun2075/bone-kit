@@ -2,15 +2,16 @@ import '@bone-kit/skeleton/styles/base.css';
 import './app.css';
 import { initTheme, clearAll, type Lantern } from '@bone-kit/skeleton';
 import { CATEGORIES, MAX_TEXT, PostTextError, ShareFormatError, addPost, checkText, countChars, importCode, isSynthetic, listPosts, openBoard, removePost, seedIfNew, shareCode, type Category, type Post } from './posts.js';
-import { DEFAULT_ROOM, DEFAULT_SIGNALLING, parseSignalling, startSync, type Sync } from './sync.js';
+import { DEFAULT_SIGNALLING, parseSignalling, startSync, type Sync } from './sync.js';
 import { tr, type Lang, type SKey } from './i18n.js';
 import type { Scanner } from './qr.js';
+import { isRoomId, resolveRoom, roomLink, withRoom } from './room.js';
 
 initTheme();
 // qrcode and jsqr load only when the Share or Meet sheets need them, to keep the first load small.
 const qrMod = () => import('./qr.js');
 
-const LS = { lang: 'seance.lang', nick: 'seance.nick', sig: 'seance.sig', room: 'seance.room' } as const;
+const LS = { lang: 'seance.lang', nick: 'seance.nick', sig: 'seance.sig' } as const;
 const ls = {
   get: (k: string) => { try { return localStorage.getItem(k) ?? ''; } catch { return ''; } },
   set: (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } },
@@ -21,7 +22,9 @@ let filter: Category | 'all' = 'all';
 let peers = 0;
 const T = (k: SKey | Parameters<typeof tr>[0], v?: Record<string, string | number>) => tr(k, lang, v);
 
-const board = openBoard();
+// The room comes from the URL hash; a visitor with none gets a fresh private one. Each room has its own local database.
+const room = resolveRoom(location, (h) => history.replaceState(null, '', location.pathname + location.search + h));
+const board = openBoard(`seance-${room}`);
 const { doc } = board;
 let sync: Sync | null = null;
 let scanner: Scanner | null = null;
@@ -68,6 +71,9 @@ root.innerHTML = `
   <label for="room" id="t-room"></label><input id="room" type="text" maxlength="40" />
   <label for="sig" id="t-sig"></label><input id="sig" type="text" inputmode="url" />
   <p id="t-sigHelp" class="sb-muted"></p>
+  <label for="invite" id="t-invite"></label><input id="invite" type="text" readonly />
+  <div class="sb-row"><button type="button" class="bk-button" id="b-invcopy"></button></div>
+  <div id="inviteqr" class="sb-qr"></div>
   <div class="sb-row"><button type="button" class="bk-button" id="b-save"></button>
   <button type="button" class="bk-button" id="b-scan"></button>
   <button value="close" class="bk-button" id="b-meetclose"></button></div>
@@ -89,13 +95,13 @@ const $ = <E extends HTMLElement>(id: string) => document.getElementById(id) as 
 const text = $<HTMLTextAreaElement>('text');
 const nick = $<HTMLInputElement>('nick');
 nick.value = ls.get(LS.nick);
-$<HTMLInputElement>('room').value = ls.get(LS.room) || DEFAULT_ROOM;
+$<HTMLInputElement>('room').value = room;
 $<HTMLInputElement>('sig').value = ls.get(LS.sig);
 
 function setText() {
   document.documentElement.lang = lang;
   document.title = T('title');
-  const map: Record<string, SKey> = { 't-title': 'title', 't-tag': 'tagline', 't-composeLabel': 'composeLabel', 't-nick': 'nickname', 't-compose': 'compose', 'b-post': 'post', 'b-meet': 'meet', 't-lang': 'language', 't-privacy': 'privacy', 't-help': 'helpLines', 't-meetTitle': 'meetTitle', 't-room': 'room', 't-sig': 'signalling', 't-sigHelp': 'signallingHelp', 'b-save': 'save', 'b-scan': 'scan', 'b-meetclose': 'close', 't-pasteLabel': 'pasteLabel', 'b-add': 'add', 't-shareTitle': 'shareTitle', 't-code': 'code', 'b-copy': 'copy', 'b-shareclose': 'close', emptywall: 'empty_wall' };
+  const map: Record<string, SKey> = { 't-title': 'title', 't-tag': 'tagline', 't-composeLabel': 'composeLabel', 't-nick': 'nickname', 't-compose': 'compose', 'b-post': 'post', 'b-meet': 'meet', 't-lang': 'language', 't-privacy': 'privacy', 't-help': 'helpLines', 't-meetTitle': 'meetTitle', 't-room': 'room', 't-sig': 'signalling', 't-sigHelp': 'signallingHelp', 'b-save': 'save', 'b-scan': 'scan', 'b-meetclose': 'close', 't-pasteLabel': 'pasteLabel', 'b-add': 'add', 't-shareTitle': 'shareTitle', 't-code': 'code', 'b-copy': 'copy', 't-invite': 'inviteLabel', 'b-invcopy': 'copy', 'b-shareclose': 'close', emptywall: 'empty_wall' };
   for (const [id, k] of Object.entries(map)) $(id).textContent = T(k);
   $('b-clear').textContent = T('app.clearAll');
   root.querySelectorAll<HTMLElement>('[data-k]').forEach((e) => (e.textContent = T(e.dataset.k as SKey)));
@@ -193,7 +199,7 @@ window.addEventListener('offline', () => paintLantern());
 function restartSync() {
   sync?.destroy();
   const sig = ls.get(LS.sig) ? parseSignalling(ls.get(LS.sig)) : DEFAULT_SIGNALLING;
-  sync = startSync(doc, { room: ls.get(LS.room) || DEFAULT_ROOM, signalling: sig }, (n) => {
+  sync = startSync(doc, { room, signalling: sig }, (n) => {
     peers = n;
     paintLantern();
   });
@@ -238,11 +244,26 @@ text.addEventListener('input', () => { $('msg').textContent = ''; updateCount();
 root.querySelectorAll<HTMLElement>('.sb-pill').forEach((b) => b.addEventListener('click', () => { filter = b.dataset.f as Category | 'all'; paintWall(); }));
 $('lang').addEventListener('change', (e) => { lang = (e.target as HTMLSelectElement).value === 'te' ? 'te' : 'en'; ls.set(LS.lang, lang); setText(); });
 $<HTMLSelectElement>('lang').value = lang;
-$('b-meet').addEventListener('click', () => ($('meet') as HTMLDialogElement).showModal());
+$('b-meet').addEventListener('click', async () => {
+  const link = roomLink(location.href, room);
+  $<HTMLInputElement>('invite').value = link;
+  ($('meet') as HTMLDialogElement).showModal();
+  $('inviteqr').innerHTML = (await qrMod()).qrSvg(link, T('inviteQrAlt'));
+});
+$('b-invcopy').addEventListener('click', async () => {
+  const el = $<HTMLInputElement>('invite');
+  try { await navigator.clipboard.writeText(el.value); $('scanmsg').textContent = T('copied'); } catch { el.select(); }
+});
+window.addEventListener('hashchange', () => location.reload()); // a pasted link with another room is another board
 $('meet').addEventListener('close', stopScan);
 $('b-save').addEventListener('click', () => {
-  ls.set(LS.room, $<HTMLInputElement>('room').value.trim() || DEFAULT_ROOM);
+  const wanted = $<HTMLInputElement>('room').value.trim();
   ls.set(LS.sig, parseSignalling($<HTMLInputElement>('sig').value).join(' '));
+  if (wanted !== room && isRoomId(wanted)) {
+    history.replaceState(null, '', location.pathname + location.search + withRoom(location.hash, wanted));
+    location.reload(); // a new room is a new local board
+    return;
+  }
   restartSync();
 });
 $('b-add').addEventListener('click', () => paste($<HTMLTextAreaElement>('paste').value));

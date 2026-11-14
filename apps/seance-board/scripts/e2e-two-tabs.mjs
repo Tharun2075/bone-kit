@@ -31,7 +31,7 @@ try {
   await p1.evaluate(() => navigator.serviceWorker.ready);
   await p1.reload({ waitUntil: 'domcontentloaded' });
   const p2 = await ctx.newPage();
-  await p2.goto(url, { waitUntil: 'domcontentloaded' });
+  await p2.goto(p1.url(), { waitUntil: 'domcontentloaded' });
   await p2.waitForSelector('.sb-card');
   check((await p1.locator('.sb-synth').count()) === 5, 'five seed posts, each labelled synthetic');
   check(/synthetic/i.test(await p1.locator('.sb-synth').first().innerText()), 'label text says synthetic');

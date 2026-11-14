@@ -50,6 +50,8 @@ const en = {
   helpLines: 'Help lines: 14416 (Tele-MANAS mental health), 112 (emergency)',
   language: 'Language',
   qrAlt: 'QR code of this note',
+  inviteLabel: 'Invite link for this room (anyone with it joins your board)',
+  inviteQrAlt: 'QR code of the invite link',
   empty_wall: 'No notes in this category yet',
 } as const;
 export type SKey = keyof typeof en;
