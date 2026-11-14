@@ -1,4 +1,5 @@
 import { WebrtcProvider } from 'y-webrtc';
+import { startRelaySync } from './relay.js';
 import { createLantern, initialLantern, type Lantern, type Y } from '@bone-kit/skeleton';
 
 export const DEFAULT_ROOM = 'seance-board';
@@ -33,7 +34,20 @@ export function startSync(doc: Y.Doc, s: SyncSettings, onPeers: (n: number) => v
   const lantern = createLantern(initialLantern());
   let count = 0;
   const provider = new WebrtcProvider(s.room, doc, { signaling: s.signalling });
-  const apply = (n: number) => {
+  const room = (provider as unknown as { room?: WebrtcRoom }).room;
+  const id = room?.peerId ?? crypto.randomUUID();
+  // Notes also travel through our relay: a direct WebRTC link never opens behind carrier NAT (Jio, 2026-11-14).
+  const relay = s.signalling[0]
+    ? startRelaySync({ doc, room: s.room, url: s.signalling[0], id, onPeers: () => recount() })
+    : null;
+  // A peer counts once data can flow: a relay hello, an open WebRTC link, or a same-browser tab.
+  // y-webrtc's own 'peers' event fires on announce alone, before any link opens, so it is not used for the count.
+  const recount = () => {
+    const live = new Set<string>(relay?.peers() ?? []);
+    for (const [p, c] of room?.webrtcConns ?? []) if (c.connected) live.add(p);
+    for (const p of room?.bcConns ?? []) live.add(p);
+    const n = live.size;
+    if (n === count) return;
     count = n;
     if (n > 0) {
       lantern.send({ type: 'CONNECTED', now: Date.now() });
@@ -41,13 +55,23 @@ export function startSync(doc: Y.Doc, s: SyncSettings, onPeers: (n: number) => v
     } else lantern.send({ type: 'DISCONNECTED' });
     onPeers(n);
   };
-  provider.on('peers', (e: { webrtcPeers: string[]; bcPeers: string[] }) => apply(e.webrtcPeers.length + e.bcPeers.length));
-  provider.on('synced', () => lantern.send({ type: 'SYNCED', at: Date.now() }));
+  provider.on('peers', recount);
+  provider.on('synced', () => (recount(), lantern.send({ type: 'SYNCED', at: Date.now() })));
+  // y-webrtc emits nothing when a link finishes opening, so look again every few seconds.
+  const tick = setInterval(recount, 3000);
   return {
     lantern,
     peers: () => count,
     destroy() {
+      clearInterval(tick);
+      relay?.destroy();
       provider.destroy();
     },
   };
+}
+
+interface WebrtcRoom {
+  peerId: string;
+  webrtcConns: Map<string, { connected: boolean }>;
+  bcConns: Set<string>;
 }
