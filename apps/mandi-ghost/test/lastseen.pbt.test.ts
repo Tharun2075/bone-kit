@@ -72,7 +72,7 @@ describe('R2.3 trendsByPair', () => {
         const pairs = trendsByPair(rows);
         for (const { points } of pairs.values()) {
           for (let i = 1; i < points.length; i++) {
-            expect(points[i].date >= points[i - 1].date).toBe(true);
+            expect(points[i]!.date >= points[i - 1]!.date).toBe(true);
           }
         }
       }),
@@ -296,7 +296,7 @@ describe('R2.1 + R3.2 lastSeen age formatting', () => {
         fc.nat(500 * 3_600_000),
         fc.nat(500 * 3_600_000),
         fc.constantFrom('en' as const, 'te' as const),
-        (at, da, db) => {
+        (at, da, db, _lang) => {
           const [loNow, hiNow] = da <= db ? [at + da, at + db] : [at + db, at + da];
           // hiNow is further in the future → data is "older" relative to hiNow
           const hLo = ageHours(at, loNow);
@@ -385,7 +385,7 @@ describe('buildTrend deduplication (later input wins)', () => {
           const pB: Point = { date, min: 0, max: 0, modal: modalB };
           const result = buildTrend([pA, pB]);
           expect(result.length).toBe(1);
-          expect(result[0].modal).toBe(modalB);
+          expect(result[0]!.modal).toBe(modalB);
         },
       ),
       RUNS,
