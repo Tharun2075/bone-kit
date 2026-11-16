@@ -1,0 +1,2 @@
+2026-11-14T12:03:52Z SessionStart hook fired
+2026-11-14T12:03:53Z PostToolUse(write) hook fired
