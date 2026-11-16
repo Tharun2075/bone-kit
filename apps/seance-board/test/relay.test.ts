@@ -1,6 +1,6 @@
 import { it, expect, vi, afterEach, beforeAll } from 'vitest';
 import * as Y from 'yjs';
-import { startRelaySync, relayTopic, MAX_UPDATE_BYTES, PEER_TTL_MS, type RelaySocket } from '../src/relay.js';
+import { startRelaySync, relayTopic, MAX_UPDATE_BYTES, PEER_TTL_MS, RECONNECT_REPLY_MS, type RelaySocket } from '../src/relay.js';
 
 // In-memory stand-in for signal/src/hub.ts: publish goes to every subscriber, sender included.
 function fakeHub() {
@@ -258,5 +258,37 @@ it('a flood of reconnect hellos is still capped', async () => {
   for (let i = 0; i < 20; i++) s.send(JSON.stringify({ type: 'publish', topic: R1, data: { t: 'sv', from: 'spam', sv: btoa(String.fromCharCode(0)), re: 1 } }));
   await flush();
   expect(hub.sent.filter((m: any) => m.data?.t === 'up' && m.data.to === 'spam')).toHaveLength(1);
+  a.sync.destroy();
+});
+
+it('re=1 floods from a known peer: one answer and one hello back per RECONNECT_REPLY_MS window, then the window reopens', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'setTimeout', 'Date'] });
+  const hub = fakeHub();
+  const a = peer(hub, 'a');
+  a.doc.getArray('notes').push(['x']);
+  await flush();
+  const s = hub.socket();
+  await flush();
+  s.send(JSON.stringify({ type: 'subscribe', topics: [R1] }));
+  const sv = (re?: 1) => s.send(JSON.stringify({ type: 'publish', topic: R1, data: { t: 'sv', from: 'spam', sv: btoa(String.fromCharCode(0)), ...(re ? { re } : {}) } }));
+  sv(); // spam is now a known peer, answered once on the normal path
+  await flush();
+  const ups = () => hub.sent.filter((m: any) => m.data?.t === 'up' && m.data.to === 'spam').length;
+  const hellos = () => hub.sent.filter((m: any) => m.data?.t === 'sv' && m.data.from === 'a').length;
+  expect(ups()).toBe(1);
+  const h0 = hellos();
+  for (let i = 0; i < 20; i++) sv(1);
+  await flush();
+  expect(ups()).toBe(1); // still inside RECONNECT_REPLY_MS of the first answer
+  expect(hellos()).toBe(h0);
+  vi.advanceTimersByTime(RECONNECT_REPLY_MS);
+  for (let i = 0; i < 20; i++) sv(1);
+  await flush();
+  expect(ups()).toBe(2); // window reopened: exactly one more answer
+  expect(hellos()).toBe(h0 + 1); // and one hello back
+  vi.advanceTimersByTime(RECONNECT_REPLY_MS);
+  for (let i = 0; i < 20; i++) sv(1);
+  await flush();
+  expect(ups()).toBe(3);
   a.sync.destroy();
 });

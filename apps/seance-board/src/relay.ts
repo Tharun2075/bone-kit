@@ -18,6 +18,8 @@ export const REPLY_MS = 30_000;
 export const REPLY_BURST = 8;
 /** A peer's first hello after it (re)connects is answered even inside REPLY_MS, at most once per this window. */
 export const RECONNECT_REPLY_MS = 2_000;
+/** Across all peers, at most this many reconnect (re=1) answers per REPLY_MS window, on top of REPLY_BURST. */
+export const RECONNECT_BURST = 8;
 /** Longest wait between reconnect tries; going back online (the 'online' event) retries at once. */
 export const RETRY_MAX_MS = 10_000;
 
@@ -74,6 +76,19 @@ export function startRelaySync(opts: {
   const log = opts.debug ?? (() => {});
   const seen = new Map<string, number>();
   const answered = new Map<string, number>();
+  const reAnswered = new Map<string, number>();
+  let reWindow = 0;
+  let reUsed = 0;
+  /** Reconnect gate: only a peer we already know, once per RECONNECT_REPLY_MS each, RECONNECT_BURST per window in all. */
+  const reconnectGate = (p: string, t: number) => {
+    const last = reAnswered.get(p);
+    if (last !== undefined && t - last < RECONNECT_REPLY_MS) return false;
+    if (t - reWindow >= REPLY_MS) (reWindow = t), (reUsed = 0);
+    if (reUsed >= RECONNECT_BURST) return false;
+    reUsed++;
+    reAnswered.set(p, t);
+    return true;
+  };
   let ws: RelaySocket | null = null;
   let dead = false;
   let retry = 1000;
@@ -97,6 +112,7 @@ export function startRelaySync(opts: {
     let changed = false;
     for (const [p, at] of seen) if (now() - at > PEER_TTL_MS) (seen.delete(p), (changed = true));
     for (const [p, at] of answered) if (now() - at >= REPLY_MS) answered.delete(p);
+    for (const [p, at] of reAnswered) if (now() - at >= REPLY_MS) reAnswered.delete(p);
     if (changed) opts.onPeers();
   };
   const touch = (p: string) => {
@@ -125,16 +141,18 @@ export function startRelaySync(opts: {
       if (d.t === 'sv' && typeof d.sv === 'string') {
         // Send what they lack. A new peer also gets our hello so it sends what we lack.
         // At most once per peer per REPLY_MS, and a global burst cap, so a flood of 'sv' cannot make us resend state.
-        // A reconnect hello (re) is answered after RECONNECT_REPLY_MS instead, and gets our hello back so the peer sends
-        // what we lack: its offline edits were never broadcast.
+        // A reconnect hello (re=1) from a peer we already know passes reconnectGate even inside REPLY_MS, and gets our
+        // hello back so the peer sends what we lack: its offline edits were never broadcast. A peer new to us is answered
+        // on the normal path (our answered map is cleared whenever our own socket drops).
         const t = now();
         const last = answered.get(d.from);
-        const gap = d.re === 1 ? RECONNECT_REPLY_MS : REPLY_MS;
-        if ((last === undefined || t - last >= gap) && (answered.has(d.from) || answered.size < REPLY_BURST)) {
+        const re = d.re === 1 && !fresh && answered.size < REPLY_BURST && reconnectGate(d.from, t);
+        if (((last === undefined || t - last >= REPLY_MS) && answered.size < REPLY_BURST) || re) {
           answered.set(d.from, t);
+          reAnswered.set(d.from, t);
           sendUpdate(Y.encodeStateAsUpdate(doc, unb64(d.sv)), d.from);
         }
-        if (fresh || d.re === 1) hello();
+        if (fresh || re) hello();
         log(`relay: hello from ${d.from.slice(0, 6)}`);
       } else if (d.t === 'up' && typeof d.u === 'string' && (!d.to || d.to === id)) {
         Y.applyUpdate(doc, unb64(d.u), RELAY_ORIGIN);
@@ -167,6 +185,7 @@ export function startRelaySync(opts: {
       if (seen.size) (seen.clear(), opts.onPeers());
       // Peers will say hello when we are back and we owe each of them a full answer then.
       answered.clear();
+      reAnswered.clear();
       if (!dead) retryTimer = setTimeout(connect, (retry = Math.min(retry * 2, RETRY_MAX_MS)));
     };
   };
