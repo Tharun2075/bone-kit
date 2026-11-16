@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { rmSync } from 'node:fs';
+import { iconFixture } from './icon-fixture.js';
 import { createStore, createDoc, clearAll, t, missingKeys, boneKitPwa } from '../src/index.js';
 
 describe('store + clear all', () => {
@@ -30,7 +32,12 @@ describe('i18n and pwa helper', () => {
     expect(missingKeys('en')).toEqual([]);
   });
   it('builds PWA options with no colour unless given one', () => {
+    const home = process.cwd();
+    const dir = iconFixture();
+    process.chdir(dir);
     const o = boneKitPwa({ name: 'X' });
+    process.chdir(home);
+    rmSync(dir, { recursive: true, force: true });
     expect(o.manifest && 'theme_color' in o.manifest).toBe(false);
     expect(o.registerType).toBe('autoUpdate');
   });

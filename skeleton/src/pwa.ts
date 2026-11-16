@@ -25,7 +25,22 @@ export interface BoneKitPwaOptions {
   /** Default: BRAND.lock dark.bg read at build time, so no colour is hard-coded here. */
   themeColor?: string;
   backgroundColor?: string;
-  icons?: { src: string; sizes: string; type: string; purpose?: string }[];
+}
+
+const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+/** Throws unless every BONE_KIT_ICONS file is in <publicDir> as a PNG of its listed size (Chrome refuses Install otherwise). */
+export function checkBoneKitIcons(publicDir = join(process.cwd(), 'public')): void {
+  const fix = 'Fix: python3 scripts/make-icons.py from the repo root';
+  for (const icon of BONE_KIT_ICONS) {
+    const f = join(publicDir, icon.src);
+    if (!existsSync(f)) throw new Error(`PWA icon missing: ${f}. ${fix}`);
+    const b = readFileSync(f);
+    if (b.length < 24 || !b.subarray(0, 8).equals(PNG_SIG) || b.toString('latin1', 12, 16) !== 'IHDR')
+      throw new Error(`PWA icon is not a PNG: ${f}. ${fix}`);
+    const size = `${b.readUInt32BE(16)}x${b.readUInt32BE(20)}`;
+    if (size !== icon.sizes) throw new Error(`PWA icon ${f} is ${size}, manifest says ${icon.sizes}. ${fix}`);
+  }
 }
 
 /** vite-plugin-pwa options for an offline-first Bone Kit app: precache the shell, auto-update, no runtime network caching. */
@@ -36,12 +51,13 @@ export function boneKitPwa(o: BoneKitPwaOptions): Partial<VitePWAOptions> {
     description: o.description ?? o.name,
     display: 'standalone',
     start_url: '.',
-    icons: o.icons ?? BONE_KIT_ICONS,
+    icons: BONE_KIT_ICONS,
   };
   const colour = o.themeColor ?? brandDarkBg();
   if (colour) manifest.theme_color = colour;
   const bg = o.backgroundColor ?? brandDarkBg();
   if (bg) manifest.background_color = bg;
+  checkBoneKitIcons();
   return {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
