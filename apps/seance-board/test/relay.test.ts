@@ -177,3 +177,86 @@ it('a flood of sv from one peer gets one full-state answer per 30 s', async () =
   expect(toSpam()).toHaveLength(1);
   a.sync.destroy();
 });
+
+// S9 regression (MacBook<->Studio, 2026-11-16): notes written while the socket was down must cross within seconds of
+// reconnecting, even when the peers answered each other less than REPLY_MS ago.
+function flakyPeer(hub: ReturnType<typeof fakeHub>, id: string) {
+  const net = { up: true, socks: [] as RelaySocket[] };
+  const socket = (): RelaySocket => {
+    if (net.up) {
+      const s = hub.socket();
+      net.socks.push(s);
+      return s;
+    }
+    const dead: RelaySocket = { readyState: 0, onopen: null, onclose: null, onmessage: null, send() {}, close() {} };
+    queueMicrotask(() => ((dead.readyState = 3), dead.onclose?.()));
+    return dead;
+  };
+  const doc = new Y.Doc();
+  const sync = startRelaySync({ doc, room: 'r1', url: 'wss://x', id, onPeers: () => {}, socket });
+  const drop = () => { net.up = false; for (const s of net.socks.splice(0)) if (s.readyState === 1) s.close(); };
+  return { doc, sync, net, drop };
+}
+
+it('S9: both devices drop, write offline, come back within REPLY_MS: both notes merge at once', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'setTimeout', 'Date'] });
+  const hub = fakeHub();
+  const a = flakyPeer(hub, 'macbook');
+  const b = flakyPeer(hub, 'studio');
+  await flush();
+  a.doc.getArray('notes').push(['s4 from A']);
+  b.doc.getArray('notes').push(['s5 from B']);
+  await flush();
+  expect(notes(a.doc).sort()).toEqual(notes(b.doc).sort());
+  vi.advanceTimersByTime(3_000);
+  a.drop(); b.drop();
+  await flush();
+  a.doc.getArray('notes').push(['offline A']);
+  b.doc.getArray('notes').push(['offline B']);
+  await flush();
+  vi.advanceTimersByTime(4_000); // retries fail while offline
+  await flush();
+  a.net.up = true; a.sync.reconnect(); // MacBook back first
+  await flush();
+  vi.advanceTimersByTime(1_000);
+  b.net.up = true; b.sync.reconnect();
+  await flush();
+  expect(notes(a.doc)).toContain('offline B');
+  expect(notes(b.doc)).toContain('offline A');
+  a.sync.destroy(); b.sync.destroy();
+});
+
+it('S9: one device drops and writes offline while the other stays: merge on reconnect, no wait for the 30 s hello', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'setTimeout', 'Date'] });
+  const hub = fakeHub();
+  const a = flakyPeer(hub, 'macbook');
+  const b = flakyPeer(hub, 'studio');
+  await flush();
+  vi.advanceTimersByTime(2_000);
+  a.drop();
+  await flush();
+  a.doc.getArray('notes').push(['offline A']);
+  b.doc.getArray('notes').push(['while A away']);
+  await flush();
+  a.net.up = true;
+  vi.advanceTimersByTime(2_500); // the retry timer alone, no online event
+  await flush();
+  expect(notes(b.doc)).toContain('offline A');
+  expect(notes(a.doc)).toContain('while A away');
+  a.sync.destroy(); b.sync.destroy();
+});
+
+it('a flood of reconnect hellos is still capped', async () => {
+  const hub = fakeHub();
+  const a = peer(hub, 'a');
+  a.doc.getArray('notes').push(['x']);
+  await flush();
+  const s = hub.socket();
+  await flush();
+  s.send(JSON.stringify({ type: 'subscribe', topics: [R1] }));
+  hub.sent.length = 0;
+  for (let i = 0; i < 20; i++) s.send(JSON.stringify({ type: 'publish', topic: R1, data: { t: 'sv', from: 'spam', sv: btoa(String.fromCharCode(0)), re: 1 } }));
+  await flush();
+  expect(hub.sent.filter((m: any) => m.data?.t === 'up' && m.data.to === 'spam')).toHaveLength(1);
+  a.sync.destroy();
+});

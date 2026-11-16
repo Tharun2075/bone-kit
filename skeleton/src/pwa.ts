@@ -27,7 +27,9 @@ export interface BoneKitPwaOptions {
   backgroundColor?: string;
 }
 
-const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+// Plain bytes, not Buffer: this module is also bundled into the browser apps through index.ts, where a top-level
+// Buffer call throws 'Buffer is not defined' and the page never renders (seance live, 2026-11-16).
+const PNG_SIG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 /** Throws unless every BONE_KIT_ICONS file is in <publicDir> as a PNG of its listed size (Chrome refuses Install otherwise). */
 export function checkBoneKitIcons(publicDir = join(process.cwd(), 'public')): void {
@@ -36,7 +38,7 @@ export function checkBoneKitIcons(publicDir = join(process.cwd(), 'public')): vo
     const f = join(publicDir, icon.src);
     if (!existsSync(f)) throw new Error(`PWA icon missing: ${f}. ${fix}`);
     const b = readFileSync(f);
-    if (b.length < 24 || !b.subarray(0, 8).equals(PNG_SIG) || b.toString('latin1', 12, 16) !== 'IHDR')
+    if (b.length < 24 || PNG_SIG.some((v, i) => b[i] !== v) || b.toString('latin1', 12, 16) !== 'IHDR')
       throw new Error(`PWA icon is not a PNG: ${f}. ${fix}`);
     const size = `${b.readUInt32BE(16)}x${b.readUInt32BE(20)}`;
     if (size !== icon.sizes) throw new Error(`PWA icon ${f} is ${size}, manifest says ${icon.sizes}. ${fix}`);
