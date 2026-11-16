@@ -2,7 +2,6 @@ import { WebrtcProvider } from 'y-webrtc';
 import { startRelaySync } from './relay.js';
 import { createLantern, initialLantern, type Lantern, type Y } from '@bone-kit/skeleton';
 
-export const DEFAULT_ROOM = 'seance-board';
 /**
  * The four public y-webrtc signalling servers were all dead on 2026-11-13 (see design.md), so the default is none:
  * tabs on one device still pair over BroadcastChannel and no third party is contacted until a URL is set, either at build

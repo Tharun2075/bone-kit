@@ -3,8 +3,8 @@
 - [x] 1. Check the three default signalling URLs live and record the result in design.md (R2.2).
 - [x] 2. Define the post schema and a codec with `createCodec` (id, text, category, created, removed) (R1.2, R3.2).
 - [x] 3. Create the doc with `createDoc('seance')` and a Y.Array of posts; add `addPost`, `removePost` (R1, R3.1).
-- [x] 4. Add y-webrtc with the room name and default signalling, plus BroadcastChannel fallback (R2.1-R2.4).
-- [x] 5. Add the "Meet" sheet: room name, QR, custom signalling URL (R2.2).
+- [x] 4. Add y-webrtc with an empty default signalling list (public servers dead), plus BroadcastChannel fallback; add `relay.ts` (`startRelaySync`) to carry Yjs updates and signalling through the own relay when a URL is set, as a fallback for carrier NAT that blocks direct WebRTC (R2.1–R2.4).
+- [x] 5. Add the "Meet" sheet: room id, invite QR, relay URL field (sets the signalling endpoint for the current session; empty = BroadcastChannel only) (R2.2).
 - [x] 6. Wire `lantern.ts` to peer count (R2.4).
 - [x] 7. Add share-as-text, QR (generator: `qrcode`, MIT) and paste-code with merge-once and error messages (R3.2-R3.4). Add a manual paste-code fallback when camera permission is denied.
 - [x] 7b. Add the QR scanner (`jsqr`, Apache-2.0); a scan failure or denied camera permission falls back to the paste-code box (R3.3).
@@ -15,3 +15,5 @@
 - [x] 12. Run the two-tab e2e and `npm run a11y`; fix findings.
 - [x] 13. Update README attributions (Yjs, y-webrtc, y-indexeddb, `qrcode` MIT and `jsqr` Apache-2.0 licences checked).
 - [x] 14. Fix stale peer count when offline: `paintLantern` must show "no one nearby" whenever the status is `offline` (R2.6). Add unit test `test/lantern-offline.test.ts`.
+- [x] 15. Private-room-by-default: remove the dead `DEFAULT_ROOM = 'seance-board'` export from `sync.ts` (it was never used but could accidentally be passed to `startSync`, landing all users in the same room); extend `test/room.test.ts` to assert that generated ids are at least 16 chars, that two fresh visits always differ, that a valid hash id is kept without a replace call, and that invalid ids (empty, too-short, disallowed chars) are replaced with a fresh id (R2.7).
+- [x] 16. Spec alignment: rewrote R2.2 in requirements.md to describe the own relay (`signal/`) truthfully (empty default list, relay stores nothing, forwards only to peers in the room, relay also carries Yjs updates for carrier-NAT fallback, user URL sets signalling endpoint for the session); replaced the stale public-signalling-server paragraph and diagram in design.md with the own-relay architecture; replaced the Meet sheet description to name the relay URL field correctly; adjusted tasks 4 and 5 to match shipped code.

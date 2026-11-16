@@ -1,0 +1,29 @@
+{
+  "name": "hookprobe",
+  "description": "Probe agent: fires hooks to test whether kiro-cli executes them headless.",
+  "prompt": "You are a minimal probe agent. Follow the user instruction exactly and stop.",
+  "tools": ["write", "shell"],
+  "hooks": [
+    {
+      "name": "hookprobe-session-start",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "command",
+        "command": "mkdir -p /Users/thar/.workflow/scratch/bone-kit/kiro-log && echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) SessionStart hook fired\" >> /Users/thar/.workflow/scratch/bone-kit/kiro-log/hook-evidence.txt"
+      },
+      "timeout": 10,
+      "enabled": true
+    },
+    {
+      "name": "hookprobe-post-tool-write",
+      "trigger": "PostToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "mkdir -p /Users/thar/.workflow/scratch/bone-kit/kiro-log && echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) PostToolUse(write) hook fired\" >> /Users/thar/.workflow/scratch/bone-kit/kiro-log/hook-evidence.txt"
+      },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}
