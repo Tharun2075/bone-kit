@@ -1,0 +1,30 @@
+Hook evidence, Kiro IDE (branch kiro-v16)
+Source of results: only what this agent session observed. The pbt and axe
+results were reported to me by the user; I did not see their output.
+
+1. pbt-on-skeleton-save  (.kiro/hooks/pbt-on-skeleton-save.kiro.hook)
+   Trigger:  fileEdited, pattern skeleton/src/**/*.ts
+   Command:  npm test -w skeleton
+   Fired by: save of skeleton/src/clear.ts (added doc comment on knownDatabases())
+   Result:   fired per user report. Command output, pass/fail counts: not seen.
+
+2. axe-on-app-change  (.kiro/hooks/axe-on-app-change.kiro.hook)
+   Trigger:  fileEdited, pattern apps/*/src/**
+   Command:  npm run build && npm run a11y
+   Fired by: save of apps/seance-board/src/i18n.ts (te 'expiry.pick' wording fix)
+   Result:   fired per user report. Command output, violation counts: not seen.
+
+3. i18n-key-parity  (.kiro/hooks/i18n-key-parity.kiro.hook)
+   Trigger:  fileEdited, patterns apps/*/src/i18n.ts, skeleton/src/i18n.ts
+   Action:   askAgent (read-only key parity report)
+   Fired by: save of apps/seance-board/src/i18n.ts (same edit as above)
+   Result:   seen. Agent ran. Keys missing from en: 0. Keys missing from te: 23 of 67
+             (added, badCode, by, clearTitle, code, copied, empty_wall, inviteLabel,
+             inviteQrAlt, known, language, meetTitle, noCamera, pasteLabel, qrAlt,
+             room, save, scanning, shareTitle, signalling, signallingHelp, stopScan,
+             tooLongShare). Allowed: te is Partial and may lag per tech rules.
+             skeleton/src/i18n.ts was not checked.
+
+Legacy CLI-era files .kiro/hooks/axe-on-app-change.json and
+pbt-on-skeleton-save.json now carry a "_note" saying the .kiro.hook versions
+supersede them. JSON parse of all five hook files: reported by user, not seen.

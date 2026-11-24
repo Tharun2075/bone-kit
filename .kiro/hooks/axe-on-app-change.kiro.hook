@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Bone Kit: axe accessibility scan on app change",
+  "description": "Rebuilds the apps and runs axe-core (WCAG 2.x A/AA) on each built app when a file under apps/*/src/ is edited.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["apps/*/src/**"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm run build && npm run a11y"
+  }
+}

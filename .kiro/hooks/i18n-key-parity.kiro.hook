@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Bone Kit: i18n en/te key check",
+  "description": "When an i18n.ts file is edited, checks that every locale key exists in both en and te and lists any missing keys.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["apps/*/src/i18n.ts", "skeleton/src/i18n.ts"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "An i18n.ts file was just edited. Read it and check that every locale key exists in both the en and te locales. List any keys missing from en and any missing from te, grouped by file. Do not edit any files; only report. If no keys are missing, say so in one line."
+  }
+}

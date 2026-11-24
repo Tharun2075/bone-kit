@@ -107,7 +107,7 @@ export const te: Partial<Record<SKey, string>> = {
   'expiry.h6': '6 గంటల్లో', // TODO(te)
   'expiry.h24': '24 గంటల్లో', // TODO(te)
   'expiry.d7': '7 రోజుల్లో', // TODO(te)
-  'expiry.pick': 'తేదీ, సమయం ఎంచుకోండి', // TODO(te)
+  'expiry.pick': 'తేదీ, సమయాన్ని ఎంచుకోండి', // TODO(te)
   'expiry.pickLabel': 'గడువు తేదీ, సమయం', // TODO(te)
   'expiry.left_lt1m': 'ఒక నిమిషం లోపు గడువు ముగుస్తుంది', // TODO(te)
   'expiry.left_m': '{n} నిమిషాల్లో గడువు ముగుస్తుంది', // TODO(te)

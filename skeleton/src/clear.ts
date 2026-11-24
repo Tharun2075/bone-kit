@@ -7,6 +7,7 @@ export function registerDatabase(name: string): void {
   known.add(name);
 }
 
+/** Returns the database names registered so far via `registerDatabase()`. */
 export function knownDatabases(): string[] {
   return [...known];
 }
