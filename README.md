@@ -82,7 +82,7 @@ Bone Kit itself is Apache-2.0, copyright 2026 THATCHED Ltd (see LICENSE).
 
 ## Built with Kiro
 
-The skeleton and apps were written mostly by Claude workers; Kiro was used for the specific changes listed below. Full account: `kiro-log/` holds the verbatim prompt and reply of each Kiro session (kiro-cli 3.3.0, headless). Kiro IDE, MCP and powers were not used. The first versions of every file in `.kiro/` were written by Claude; Kiro changed them in the sessions below.
+The skeleton and apps were written mostly by Claude workers; Kiro was used for the specific changes listed below. Full account: `kiro-log/` holds the verbatim prompt and reply of each Kiro session (kiro-cli 3.3.0, headless). Sessions 11-13 used the Kiro IDE 1.4.154 and sessions 9-10 the Playwright MCP; powers were not used. In every session Claude typed the prompts and clicked approve; Kiro wrote the files. The first versions of every file in `.kiro/` were written by Claude; Kiro changed them in the sessions below.
 
 ### Where Kiro was used
 
@@ -96,12 +96,19 @@ The skeleton and apps were written mostly by Claude workers; Kiro was used for t
 | 6 | New fast-check suite for price, lastSeen and trend rules; found no bug | `apps/mandi-ghost/test/lastseen.pbt.test.ts` | 70ee0ca | `kiro-log/06-mandi-lastseen-pbt.md` |
 | 7 | Hooks probe agent: its agent hooks (start, after write) fired under headless kiro-cli | `.kiro/agents/hookprobe.json`, `.kiro/specs/hooks-probe/tasks.md` | a42d530 | `kiro-log/07-hooks-probe.md`, `kiro-log/hook-evidence.txt` |
 | 8 | Gravedigger re-audit of `DISTINCTNESS.md` | `.kiro/specs/DISTINCTNESS.md` | 51149cc | `kiro-log/08-gravedigger-reaudit.md` |
+| 9 | Playwright MCP, local run: checked note expiry in a browser (added the Playwright MCP config) | `.kiro/settings/mcp.json` | 5d816db | `kiro-log/09-mcp-local-expiry.md` |
+| 10 | Playwright MCP, live run: checked note expiry on the deployed Seance Board | none (check only) | b0e03c2 | `kiro-log/10-mcp-live-expiry.md` |
+| 11 | Kiro IDE: wrote steering file `i18n.md` (translation key rules) | `.kiro/steering/i18n.md` | 077d938 | `kiro-log/11-ide-steering.md` |
+| 12 | Kiro IDE: spec flow for note expiry (requirements, design, tasks, code), then IDE agent hooks | `.kiro/specs/note-expiry/`, `.kiro/hooks/*.kiro.hook` | 077d938, 4b12b3f | `kiro-log/12-ide-spec-hooks.md`, `kiro-log/hook-evidence-ide.txt` |
+| 13 | Gravedigger re-audit of `DISTINCTNESS.md` after note expiry (kiro-cli, 4th run) | `.kiro/specs/DISTINCTNESS.md` | 64b8f44 | `kiro-log/13-gravedigger-reaudit2.md` |
 
 Everything above is read from `kiro-log/` and `git log`.
 
+Credits: 100.81 of 4000 Kiroween bonus credits used.
+
 ### Hooks: honest status
 
-The two project hooks (`.kiro/hooks/pbt-on-skeleton-save.json`, `.kiro/hooks/axe-on-app-change.json`) use the Kiro IDE trigger names. They are configured to rerun the property tests and the axe scan on save; we have not seen them fire in the IDE. Session 7 found that kiro-cli does not honour IDE-format hook files (`kiro-log/07-hooks-probe.md`). The only hooks seen firing are the probe agent's (`kiro-log/hook-evidence.txt`).
+The two project hooks (`.kiro/hooks/pbt-on-skeleton-save.json`, `.kiro/hooks/axe-on-app-change.json`) use the Kiro IDE trigger names. They are configured to rerun the property tests and the axe scan on save; in the IDE, the pbt and axe hooks fired on save per the user's report; Claude did not see their output (`kiro-log/hook-evidence-ide.txt`). Session 7 found that kiro-cli does not honour IDE-format hook files (`kiro-log/07-hooks-probe.md`). The only hooks seen firing are the probe agent's (`kiro-log/hook-evidence.txt`).
 
 ### Every Kiro file in the repo
 
