@@ -2,6 +2,14 @@
 
 A Kiro-native skeleton for local-first, low-bandwidth web apps that stay alive with no signal.
 
+- Live: Mandi Ghost <https://bone-kit-mandi.picchess.workers.dev> and Seance Board <https://bone-kit-seance.picchess.workers.dev>
+- Video: <https://youtu.be/IAjdXduYAtw>
+
+## The two apps
+
+- **Mandi Ghost** (`apps/mandi-ghost/`): last-known crop prices for farmers, with a 7-day trend, painted from IndexedDB so they still show with no signal; prices can travel by SMS-sized codes. The data is synthetic sample data (see `apps/mandi-ghost/README.md`).
+- **Seance Board** (`apps/seance-board/`): a notice wall that works with no signal and no account. Notes of up to 100 characters sync peer to peer (WebRTC through our stateless relay in `signal/`) and between tabs with no network. See `apps/seance-board/README.md`.
+
 ## Structure
 
 ```
@@ -15,8 +23,9 @@ skeleton/              @bone-kit/skeleton: the shared bones
   src/pwa.ts           vite-plugin-pwa options helper
   src/styles/base.css  colours only as var(--bk-*)
   test/                property tests (fast-check, 1000 runs each) + store test
-apps/mandi-ghost/      placeholder app that imports the skeleton
-apps/seance-board/     placeholder app that imports the skeleton
+apps/mandi-ghost/      offline crop-price app built on the skeleton
+apps/seance-board/     peer-to-peer notice wall built on the skeleton
+signal/                y-webrtc signalling relay (Worker + Durable Object, stores nothing)
 scripts/licence-scan   fails on GPL, AGPL, LGPL or unlicensed dependencies
 scripts/axe-scan.mjs   accessibility scan of each built app
 .kiro/                 steering, spec, hooks and the Gravedigger agent
@@ -73,19 +82,33 @@ Bone Kit itself is Apache-2.0, copyright 2026 THATCHED Ltd (see LICENSE).
 
 ## Built with Kiro
 
-The skeleton was specified, steered and checked with Kiro. Every Kiro file in the repo:
+The skeleton and apps were written mostly by Claude workers; Kiro was used for the specific changes listed below. Full account: `kiro-log/` holds the verbatim prompt and reply of each Kiro session (kiro-cli 3.3.0, headless). Kiro IDE, MCP and powers were not used. The first versions of every file in `.kiro/` were written by Claude; Kiro changed them in the sessions below.
 
-- `.kiro/steering/product.md`: what Bone Kit is and who it serves (always included)
-- `.kiro/steering/tech.md`: stack, libraries and code rules (always included)
-- `.kiro/steering/offline-rules.md`: local-first and no-signal rules (always included)
-- `.kiro/steering/size-budget.md`: bundle and payload budgets (for apps and skeleton source)
-- `.kiro/steering/accessibility.md`: accessibility rules (for apps and styles)
-- `.kiro/specs/skeleton/requirements.md`: requirements in EARS form
-- `.kiro/specs/skeleton/design.md`: module design and decisions
-- `.kiro/specs/skeleton/tasks.md`: implementation task list
-- `.kiro/hooks/pbt-on-skeleton-save.json`: runs the property tests when a skeleton source file is saved
-- `.kiro/hooks/axe-on-app-change.json`: rebuilds and runs the axe scan when an app file changes
-- `.kiro/agents/gravedigger.json`: custom agent that raises a new app from the skeleton
-- `.kiro/agents/prompts/gravedigger.md`: the Gravedigger's system prompt
+### Where Kiro was used
+
+| Session | What Kiro did | Files | Commit | Log |
+|---|---|---|---|---|
+| 1 | Fixed the stale peer count on the Seance lantern while offline; added spec R2.6 and 8 tests | `apps/seance-board/src/main.ts`, `apps/seance-board/test/lantern-offline.test.ts`, `.kiro/specs/seance-board/` | a8475ab | `kiro-log/01-lantern-stale.md` |
+| 2 | Gravedigger agent audited both apps against `DISTINCTNESS.md`; wrote the third-app spec and a scaffold | `.kiro/specs/DISTINCTNESS.md`, `.kiro/specs/third-app/spec.md` | baae204 | `kiro-log/02-gravedigger-audit.md` |
+| 3 | Reviewed steering and hooks; its one edit to `product.md` was reverted as wrong | `.kiro/steering/product.md` | 3fc4b9d, reverted in 39f4cdc | `kiro-log/03-steering-hooks-review.md` |
+| 4 | Spec first: private default room (R2.7, task 15); removed dead `DEFAULT_ROOM`; stricter room tests | `.kiro/specs/seance-board/`, `apps/seance-board/src/sync.ts` | 83ceeb6 | `kiro-log/04-seance-private-room.md` |
+| 5 | Rewrote spec R2.2 and design to match the shipped relay | `.kiro/specs/seance-board/` | 3687ca2 | `kiro-log/05-seance-spec-relay.md` |
+| 6 | New fast-check suite for price, lastSeen and trend rules; found no bug | `apps/mandi-ghost/test/lastseen.pbt.test.ts` | 70ee0ca | `kiro-log/06-mandi-lastseen-pbt.md` |
+| 7 | Hooks probe agent: its agent hooks (start, after write) fired under headless kiro-cli | `.kiro/agents/hookprobe.json`, `.kiro/specs/hooks-probe/tasks.md` | a42d530 | `kiro-log/07-hooks-probe.md`, `kiro-log/hook-evidence.txt` |
+| 8 | Gravedigger re-audit of `DISTINCTNESS.md` | `.kiro/specs/DISTINCTNESS.md` | 51149cc | `kiro-log/08-gravedigger-reaudit.md` |
+
+Everything above is read from `kiro-log/` and `git log`.
+
+### Hooks: honest status
+
+The two project hooks (`.kiro/hooks/pbt-on-skeleton-save.json`, `.kiro/hooks/axe-on-app-change.json`) use the Kiro IDE trigger names. They are configured to rerun the property tests and the axe scan on save; we have not seen them fire in the IDE. Session 7 found that kiro-cli does not honour IDE-format hook files (`kiro-log/07-hooks-probe.md`). The only hooks seen firing are the probe agent's (`kiro-log/hook-evidence.txt`).
+
+### Every Kiro file in the repo
+
+- Specs (`.kiro/specs/`): `skeleton`, `mandi-ghost`, `seance-board` (each with `requirements.md` in EARS form, `design.md`, `tasks.md`), plus `third-app/spec.md`, `hooks-probe/tasks.md` and `DISTINCTNESS.md`
+- Steering (`.kiro/steering/`): `product.md`, `tech.md`, `offline-rules.md` (always included); `size-budget.md`, `accessibility.md` (for apps and styles)
+- Hooks (`.kiro/hooks/`): `pbt-on-skeleton-save.json`, `axe-on-app-change.json`
+- Agents (`.kiro/agents/`): `gravedigger.json` (raises a new app from the skeleton; prompt in `prompts/gravedigger.md`) and `hookprobe.json` (the hooks probe)
+- No `mcp.json` is shipped.
 
 Formats follow the Kiro docs: hooks <https://kiro.dev/docs/hooks/>, custom agents <https://kiro.dev/docs/custom-agents/configuration-reference/>, steering <https://kiro.dev/docs/steering/>, specs <https://kiro.dev/docs/specs/>.
