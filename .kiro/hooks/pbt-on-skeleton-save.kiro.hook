@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Bone Kit: property tests on skeleton save",
+  "description": "Runs the skeleton test suite, including the fast-check property tests, when a file under skeleton/src/ is saved.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["skeleton/src/**/*.ts"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm test -w skeleton"
+  }
+}

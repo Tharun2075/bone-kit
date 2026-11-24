@@ -1,4 +1,5 @@
 {
+  "_note": "CLI-era hook, superseded by the .kiro.hook version",
   "version": "v1",
   "hooks": [
     {

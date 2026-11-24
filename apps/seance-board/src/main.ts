@@ -1,15 +1,18 @@
 import '@bone-kit/skeleton/styles/base.css';
 import './app.css';
 import { initTheme, clearAll, type Lantern } from '@bone-kit/skeleton';
-import { CATEGORIES, MAX_TEXT, PostTextError, ShareFormatError, addPost, checkText, countChars, importCode, isSynthetic, listPosts, openBoard, removePost, seedIfNew, shareCode, type Category, type Post } from './posts.js';
+import { CATEGORIES, MAX_TEXT, PostExpiryError, PostTextError, ShareFormatError, addPost, checkText, countChars, importCode, isExpired, isSynthetic, listPosts, openBoard, removePost, seedIfNew, shareCode, type Category, type Post } from './posts.js';
 import { DEFAULT_SIGNALLING, parseSignalling, startSync, type Sync } from './sync.js';
 import { tr, type Lang, type SKey } from './i18n.js';
 import type { Scanner } from './qr.js';
+import { remaining, resolveExpiry, type ExpiryChoice } from './expiry.js';
 import { isRoomId, resolveRoom, roomLink, withRoom } from './room.js';
 
 initTheme();
 // qrcode and jsqr load only when the Share or Meet sheets need them, to keep the first load small.
 const qrMod = () => import('./qr.js');
+
+const EXPIRY_CHOICES: ExpiryChoice[] = ['none', 'h1', 'h6', 'h24', 'd7', 'pick'];
 
 const LS = { lang: 'seance.lang', nick: 'seance.nick', sig: 'seance.sig' } as const;
 const ls = {
@@ -51,6 +54,14 @@ root.innerHTML = `
     <fieldset class="sb-chips"><legend id="t-compose"></legend>
       ${CATEGORIES.map((c, i) => `<label class="sb-chip"><input type="radio" name="cat" value="${c}"${i === 0 ? ' checked' : ''} /><span data-k="cat_${c}"></span></label>`).join('')}
     </fieldset>
+    <div class="sb-row">
+      <label for="expiry" data-k="expiry.label"></label>
+      <select id="expiry">${EXPIRY_CHOICES.map((c) => `<option value="${c}"${c === 'none' ? ' selected' : ''} data-k="expiry.${c}"></option>`).join('')}</select>
+    </div>
+    <div class="sb-row">
+      <label for="expPick" id="l-expPick" data-k="expiry.pickLabel" hidden></label>
+      <input id="expPick" type="datetime-local" hidden />
+    </div>
     <div class="sb-row"><button type="submit" class="bk-button" id="b-post"></button><span id="count" class="sb-count" aria-live="polite"></span></div>
     <p id="msg" class="sb-msg" role="alert"></p>
   </form>
@@ -94,6 +105,14 @@ root.innerHTML = `
 const $ = <E extends HTMLElement>(id: string) => document.getElementById(id) as E;
 const text = $<HTMLTextAreaElement>('text');
 const nick = $<HTMLInputElement>('nick');
+const expirySel = $<HTMLSelectElement>('expiry');
+const expPick = $<HTMLInputElement>('expPick');
+function syncPicker() {
+  const show = expirySel.value === 'pick';
+  expPick.hidden = !show;
+  $('l-expPick').hidden = !show;
+  if (!show) expPick.value = '';
+}
 nick.value = ls.get(LS.nick);
 $<HTMLInputElement>('room').value = room;
 $<HTMLInputElement>('sig').value = ls.get(LS.sig);
@@ -129,10 +148,23 @@ function paintLantern() {
   el.textContent = `${mark}${T(`app.${st}` as 'app.online')} · ${peerText}`;
 }
 
-function paintWall() {
+const nowSec = () => Math.floor(Date.now() / 1000);
+let shownKey = '';
+
+function expLabel(expires: number, now: number): string {
+  const r = remaining(expires, now);
+  return T(`expiry.left_${r.unit}` as SKey, { n: r.n });
+}
+
+function visible(now: number): Post[] {
+  return listPosts(doc, now).filter((p) => filter === 'all' || p.category === filter);
+}
+
+function paintWall(now: number = nowSec()) {
   const wall = $('wall');
   wall.replaceChildren();
-  const posts = listPosts(doc).filter((p) => filter === 'all' || p.category === filter);
+  const posts = visible(now);
+  shownKey = posts.map((p) => p.id).join(',');
   $('emptywall').hidden = posts.length > 0;
   for (const p of posts) wall.append(card(p));
   root.querySelectorAll<HTMLElement>('.sb-pill').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === filter)));
@@ -164,8 +196,27 @@ function card(p: Post): HTMLLIElement {
     s.textContent = T('synthetic');
     li.append(s);
   }
-  li.append(body, foot);
+  li.append(body);
+  if (p.expires !== undefined) {
+    const x = document.createElement('span');
+    x.className = 'sb-exp';
+    x.dataset.exp = String(p.expires);
+    x.textContent = expLabel(p.expires, nowSec());
+    li.append(x);
+  }
+  li.append(foot);
   return li;
+}
+
+/** Repaint when the visible set changes (a note expired, or the clock moved back); otherwise refresh labels in place. */
+function tick() {
+  const now = nowSec();
+  const key = visible(now).map((p) => p.id).join(',');
+  if (key !== shownKey) { paintWall(now); return; }
+  root.querySelectorAll<HTMLElement>('.sb-exp').forEach((e) => {
+    const t = expLabel(Number(e.dataset.exp), now);
+    if (e.textContent !== t) e.textContent = t;
+  });
 }
 
 function btn(label: string, fn: () => void): HTMLButtonElement {
@@ -178,6 +229,7 @@ function btn(label: string, fn: () => void): HTMLButtonElement {
 }
 
 async function openShare(p: Post) {
+  if (isExpired(p.expires, nowSec())) { paintWall(); return; }
   const r = shareCode(p);
   $('sharepost').textContent = p.text;
   const qr = $('qr');
@@ -218,11 +270,12 @@ function stopScan() {
 function paste(raw: string) {
   const out = $('pastemsg');
   try {
-    out.textContent = T(importCode(doc, raw) === 'added' ? 'added' : 'known');
+    const res = importCode(doc, raw);
+    out.textContent = res === 'expired' ? T('expiry.expiredCode') : T(res === 'added' ? 'added' : 'known');
     $<HTMLTextAreaElement>('paste').value = '';
   } catch (e) {
     if (!(e instanceof ShareFormatError)) throw e;
-    out.textContent = T('badCode');
+    out.textContent = e.reason === 'expiry' ? T('expiry.badCode') : T('badCode');
   }
 }
 
@@ -232,16 +285,26 @@ $('compose').addEventListener('submit', (e) => {
   try {
     const cat = (root.querySelector<HTMLInputElement>('input[name=cat]:checked')!.value as Category) ?? 'h';
     checkText(text.value);
-    addPost(doc, text.value, cat, Date.now(), Math.random, nick.value);
+    const now = Date.now();
+    const expires = resolveExpiry(expirySel.value as ExpiryChoice, expPick.value, now);
+    addPost(doc, text.value, cat, now, Math.random, nick.value, expires);
     ls.set(LS.nick, nick.value.trim());
     text.value = '';
     msg.textContent = '';
+    expirySel.value = 'none';
+    syncPicker();
     updateCount();
   } catch (err) {
+    if (err instanceof PostExpiryError) {
+      const time = err.bound === undefined ? '' : new Intl.DateTimeFormat(lang === 'te' ? 'te-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(err.bound * 1000);
+      msg.textContent = err.kind === 'invalid' ? T('expiry.err_invalid') : err.kind === 'tooSoon' ? T('expiry.err_soon', { time }) : T('expiry.err_far', { time });
+      return;
+    }
     if (!(err instanceof PostTextError)) throw err;
     msg.textContent = err.kind === 'empty' ? T('empty') : T('over', { n: -err.remaining });
   }
 });
+expirySel.addEventListener('change', () => { $('msg').textContent = ''; syncPicker(); });
 text.addEventListener('input', () => { $('msg').textContent = ''; updateCount(); });
 root.querySelectorAll<HTMLElement>('.sb-pill').forEach((b) => b.addEventListener('click', () => { filter = b.dataset.f as Category | 'all'; paintWall(); }));
 $('lang').addEventListener('change', (e) => { lang = (e.target as HTMLSelectElement).value === 'te' ? 'te' : 'en'; ls.set(LS.lang, lang); setText(); });
@@ -296,7 +359,10 @@ $('b-clear').addEventListener('click', async () => {
   setTimeout(() => location.reload(), 400);
 });
 
-doc.on('update', paintWall);
+doc.on('update', () => paintWall());
+setInterval(tick, 2000);
+document.addEventListener('visibilitychange', tick);
+window.addEventListener('pageshow', tick);
 setText();
 restartSync();
 board.bone.ready.then(() => { seedIfNew(doc); paintWall(); });
