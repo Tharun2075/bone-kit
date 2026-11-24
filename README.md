@@ -82,7 +82,7 @@ Bone Kit itself is Apache-2.0, copyright 2026 THATCHED Ltd (see LICENSE).
 
 ## Built with Kiro
 
-The skeleton and apps were written mostly by Claude workers; Kiro was used for the specific changes listed below. Full account: `kiro-log/` holds the verbatim prompt and reply of each Kiro session (kiro-cli 3.3.0, headless). Sessions 11-13 used the Kiro IDE 1.4.154 and sessions 9-10 the Playwright MCP; powers were not used. In every session Claude typed the prompts and clicked approve; Kiro wrote the files. The first versions of every file in `.kiro/` were written by Claude; Kiro changed them in the sessions below.
+The skeleton and apps were written mostly by Claude workers; Kiro was used for the specific changes listed below. Full account: `kiro-log/` holds the verbatim prompt and reply of each Kiro session (kiro-cli 3.3.0, headless). Sessions 11-13 used the Kiro IDE 1.4.154 and sessions 9-10 the Playwright MCP; powers were not used. In sessions 9-13 Claude typed the prompts and clicked approve; Kiro wrote the files. The first versions of every file in `.kiro/` were written by Claude; Kiro changed them in the sessions below.
 
 ### Where Kiro was used
 
@@ -104,7 +104,7 @@ The skeleton and apps were written mostly by Claude workers; Kiro was used for t
 
 Everything above is read from `kiro-log/` and `git log`.
 
-Credits: 100.81 of 4000 Kiroween bonus credits used.
+Credits: 100.81 of 4000 Kiroween bonus credits used (figure from the Kiro account usage page, as reported by the owner).
 
 ### Hooks: honest status
 
@@ -112,10 +112,10 @@ The two project hooks (`.kiro/hooks/pbt-on-skeleton-save.json`, `.kiro/hooks/axe
 
 ### Every Kiro file in the repo
 
-- Specs (`.kiro/specs/`): `skeleton`, `mandi-ghost`, `seance-board` (each with `requirements.md` in EARS form, `design.md`, `tasks.md`), plus `third-app/spec.md`, `hooks-probe/tasks.md` and `DISTINCTNESS.md`
-- Steering (`.kiro/steering/`): `product.md`, `tech.md`, `offline-rules.md` (always included); `size-budget.md`, `accessibility.md` (for apps and styles)
-- Hooks (`.kiro/hooks/`): `pbt-on-skeleton-save.json`, `axe-on-app-change.json`
+- Specs (`.kiro/specs/`): `skeleton`, `mandi-ghost`, `seance-board` (each with `requirements.md` in EARS form, `design.md`, `tasks.md`), plus `note-expiry` (requirements, design, tasks), `third-app/spec.md`, `hooks-probe/tasks.md` and `DISTINCTNESS.md`
+- Steering (`.kiro/steering/`): `product.md`, `tech.md`, `offline-rules.md` (always included); `size-budget.md`, `accessibility.md` (for apps and styles); `i18n.md` (for locale files)
+- Hooks (`.kiro/hooks/`): `pbt-on-skeleton-save.json`, `axe-on-app-change.json`, plus the IDE hooks `pbt-on-skeleton-save.kiro.hook`, `axe-on-app-change.kiro.hook`, `i18n-key-parity.kiro.hook`
 - Agents (`.kiro/agents/`): `gravedigger.json` (raises a new app from the skeleton; prompt in `prompts/gravedigger.md`) and `hookprobe.json` (the hooks probe)
-- No `mcp.json` is shipped.
+- MCP (`.kiro/settings/mcp.json`): the Playwright MCP, used in sessions 9-10.
 
 Formats follow the Kiro docs: hooks <https://kiro.dev/docs/hooks/>, custom agents <https://kiro.dev/docs/custom-agents/configuration-reference/>, steering <https://kiro.dev/docs/steering/>, specs <https://kiro.dev/docs/specs/>.
