@@ -104,7 +104,7 @@ The skeleton and apps were written mostly by Claude workers; Kiro was used for t
 
 Everything above is read from `kiro-log/` and `git log`.
 
-Credits: 100.81 of 4000 Kiroween bonus credits used (figure from the Kiro account usage page, as reported by the owner).
+Credits: 100.81 of 4000 Kiroween bonus credits used (read from Kiro's own usage report on 2026-11-24).
 
 ### Hooks: honest status
 
