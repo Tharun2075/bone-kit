@@ -2,7 +2,7 @@ import { t as baseT, type Lang, type StringKey } from '@bone-kit/skeleton';
 
 export type { Lang };
 
-const en = {
+export const en = {
   title: 'Seance Board',
   tagline: 'Pin a note. It reaches every device that meets this one, no account. Posts pass through a relay that stores nothing.',
   compose: 'Write a note',
@@ -53,10 +53,27 @@ const en = {
   inviteLabel: 'Invite link for this room (anyone with it joins your board)',
   inviteQrAlt: 'QR code of the invite link',
   empty_wall: 'No notes in this category yet',
+  'expiry.label': 'Expires',
+  'expiry.none': 'No expiry',
+  'expiry.h1': 'In 1 hour',
+  'expiry.h6': 'In 6 hours',
+  'expiry.h24': 'In 24 hours',
+  'expiry.d7': 'In 7 days',
+  'expiry.pick': 'Pick a date and time',
+  'expiry.pickLabel': 'Expiry date and time',
+  'expiry.left_lt1m': 'expires in less than a minute',
+  'expiry.left_m': 'expires in {n} min',
+  'expiry.left_h': 'expires in {n} h',
+  'expiry.left_d': 'expires in {n} d',
+  'expiry.err_invalid': 'Choose a valid date and time',
+  'expiry.err_soon': 'Expiry must be at least a minute from now. Earliest: {time}',
+  'expiry.err_far': 'Expiry must be within 30 days of posting. Latest: {time}',
+  'expiry.expiredCode': 'That note has already expired',
+  'expiry.badCode': 'That code has an invalid expiry time',
 } as const;
 export type SKey = keyof typeof en;
 
-const te: Partial<Record<SKey, string>> = {
+export const te: Partial<Record<SKey, string>> = {
   title: 'సీయాన్స్ బోర్డ్',
   tagline: 'ఒక నోట్ పెట్టండి. ఇది కలిసే ప్రతి పరికరానికి చేరుతుంది, ఖాతా లేదు. నోట్లు ఏమీ నిల్వ చేయని రిలే ద్వారా వెళ్తాయి.',
   compose: 'నోట్ రాయండి',
@@ -84,6 +101,23 @@ const te: Partial<Record<SKey, string>> = {
   helpLines: 'సహాయ నంబర్లు: 14416 (టెలి-మానస్), 112 (అత్యవసరం)',
   noPeers: 'సమీపంలో ఎవరూ లేరు',
   peers: '{n} సమీపంలో',
+  'expiry.label': 'గడువు', // TODO(te)
+  'expiry.none': 'గడువు లేదు', // TODO(te)
+  'expiry.h1': '1 గంటలో', // TODO(te)
+  'expiry.h6': '6 గంటల్లో', // TODO(te)
+  'expiry.h24': '24 గంటల్లో', // TODO(te)
+  'expiry.d7': '7 రోజుల్లో', // TODO(te)
+  'expiry.pick': 'తేదీ, సమయం ఎంచుకోండి', // TODO(te)
+  'expiry.pickLabel': 'గడువు తేదీ, సమయం', // TODO(te)
+  'expiry.left_lt1m': 'ఒక నిమిషం లోపు గడువు ముగుస్తుంది', // TODO(te)
+  'expiry.left_m': '{n} నిమిషాల్లో గడువు ముగుస్తుంది', // TODO(te)
+  'expiry.left_h': '{n} గంటల్లో గడువు ముగుస్తుంది', // TODO(te)
+  'expiry.left_d': '{n} రోజుల్లో గడువు ముగుస్తుంది', // TODO(te)
+  'expiry.err_invalid': 'సరైన తేదీ, సమయం ఎంచుకోండి', // TODO(te)
+  'expiry.err_soon': 'గడువు ఇప్పటి నుండి కనీసం ఒక నిమిషం ఉండాలి. తొలి సమయం: {time}', // TODO(te)
+  'expiry.err_far': 'గడువు పెట్టిన 30 రోజుల లోపే ఉండాలి. చివరి సమయం: {time}', // TODO(te)
+  'expiry.expiredCode': 'ఆ నోట్ గడువు ఇప్పటికే ముగిసింది', // TODO(te)
+  'expiry.badCode': 'ఆ కోడ్‌లో గడువు సమయం సరైనది కాదు', // TODO(te)
 };
 
 /** Seance strings first, then the skeleton's `app.*` strings (lantern, Clear all). */

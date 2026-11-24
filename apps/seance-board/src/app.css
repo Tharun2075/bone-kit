@@ -45,5 +45,12 @@ dialog form { display: grid; gap: 0.5rem; }
 .sb-qr svg { width: 100%; height: auto; display: block; }
 .sb-video { width: 100%; max-height: 16rem; }
 .sb-sharepost { overflow-wrap: anywhere; font-weight: 700; }
+/* Note expiry controls: 44 px targets, visible focus, label tied to its control, Telugu never clipped. */
+#expiry, #expPick { min-height: 2.75rem; }
+input[type='datetime-local'] { border: 2px solid var(--bk-border); background: var(--bk-surface); color: var(--bk-fg); border-radius: 0.4rem; padding: 0.4rem 0.6rem; }
+#expiry:focus-visible, #expPick:focus-visible { outline: 3px solid var(--bk-focus); outline-offset: 2px; }
+label[for='expiry'], label[for='expPick'] { font-weight: 700; line-height: 1.6; overflow: visible; height: auto; }
+#expiry[hidden], #expPick[hidden], #l-expPick[hidden] { display: none; }
+.sb-exp { color: var(--bk-muted); font-size: 0.9rem; line-height: 1.6; overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: no-preference) { .sb-card { animation: sb-in 0.25s ease-out; } }
 @keyframes sb-in { from { transform: translateY(0.5rem); } to { transform: none; } }
