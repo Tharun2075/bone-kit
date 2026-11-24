@@ -28,3 +28,16 @@ results were reported to me by the user; I did not see their output.
 Legacy CLI-era files .kiro/hooks/axe-on-app-change.json and
 pbt-on-skeleton-save.json now carry a "_note" saying the .kiro.hook versions
 supersede them. JSON parse of all five hook files: reported by user, not seen.
+
+--- Manual re-run by the agent (NOT the hook runs above) ---
+Run from the repo root after the hooks fired. Same commands, run by hand.
+
+pbt (npm test -w skeleton): exit 0
+   Test Files 6 passed (6); Tests 22 passed (22); 0 failed. Duration 28.03s (vitest v5.1.0).
+
+axe (npm run build && npm run a11y): exit 3
+   npm run build: completed (all workspace builds reached the end, no errors printed).
+   npm run a11y: did not scan. scripts/axe-scan.mjs stopped with:
+     "axe-scan: no Chromium for Playwright. Fix: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium"
+   Violation counts: none, no page was scanned. Chromium was not installed.
+   Note: the axe hook will fail the same way on this machine until Chromium is installed.
