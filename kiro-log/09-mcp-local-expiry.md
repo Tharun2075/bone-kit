@@ -26,3 +26,5 @@ Date of run: 2026-11-24, device time zone Asia/Calcutta (UTC+5:30). Everything b
 - Clicking "Pin it" by ref `e36` returned "Ref e36 not found", yet the note was already posted. I then clicked "Pin it" again by selector with the textbox empty. The wall still had 6 items and `#msg` stayed empty. I did not capture what that second click did. It may have been refused silently.
 - Not checked: preset expiries (1 h and longer), the too-soon and too-far error messages, Telugu text, share-code behaviour, and two-device sync.
 - The MCP server writes snapshots to `.playwright-mcp/` in the workspace. That folder is not ignored by git and was left out of the commit.
+
+Note: the local run pointed at a local Chromium path (`--executable-path`); that argument was removed from the shared `.kiro/settings/mcp.json`.
